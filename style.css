@@ -1,0 +1,343 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, system-ui, sans-serif;
+    background: #f5f5f5;
+    overflow: hidden;
+}
+
+.toolbar {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: white;
+    box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.1);
+    height: 80px;
+    z-index: 1000;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.menu-button {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    font-size: 24px;
+    padding: 8px 16px;
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+}
+
+.menu-button:hover {
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu {
+    position: absolute;
+    right: 20px;
+    top: 100px;
+    background: white;
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    z-index: 1001;
+}
+
+.menu.visible {
+    display: block;
+}
+
+.menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.menu button:hover {
+    transition: transform 0.3s ease;
+    transform: translateY(-5px);
+    box-shadow: 0 0px 8px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+    display: flex;
+    height: calc(100vh - 60px);
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+}
+
+.canvas-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#canvas {
+    position: absolute;
+    width: 5000px;
+    height: 5000px;
+    background: white;
+    transform-origin: 0 0;
+    cursor: grab;
+    z-index: 1;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+}
+
+#canvas:active {
+    cursor: grabbing;
+}
+
+.node {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+    cursor: move;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+    user-select: none; /* Add this line */
+    -webkit-user-select: none; /* For Safari */
+    -moz-user-select: none; /* For Firefox */
+    -ms-user-select: none; /* For IE/Edge */
+}
+
+.node:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+}
+
+.node.true {
+    background: #d4edda;
+}
+
+.node.false {
+    background: #f8d7da;
+}
+
+.node.null {
+    background: white;
+}
+
+.node .title {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    word-wrap: break-word;
+    max-width: 90%;
+}
+
+.node .notes {
+    font-size: 0.8rem;
+    opacity: 0.7;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    max-width: 90%;
+}
+
+.delete-node {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 24px;
+    height: 24px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+
+.node:hover .delete-node {
+    opacity: 1;
+}
+
+.delete-node:hover {
+    background: #e0e0e0;
+}
+
+.add-child {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.2);
+}
+
+.node:hover .add-child {
+    opacity: 1;
+}
+
+.add-child:hover {
+    background: #e0e0e0;
+}
+
+#sidebar {
+    width: 300px;
+    padding: 1.5rem;
+    background: white;
+    border-left: 0px solid #ddd;
+    overflow-y: auto;
+}
+
+#sidebar.hidden {
+    display: none;
+}
+
+#sidebar.visible {
+    display: block;
+}
+
+.minimap {
+    position: absolute;
+    bottom: 40px;
+    right: 20px;
+    width: 200px;
+    height: 150px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 0px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+    z-index: 1000;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+}
+
+.canvas-controls {
+    position: absolute;
+    left: 20px;
+    bottom: 40px;
+    display: flex;
+    gap: 0.5rem;
+    z-index: 1000;
+}
+
+.canvas-controls button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 20px;
+    border: 0px solid #ddd;
+}
+
+.canvas-controls button:hover {
+    background: #f0f0f0;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+}
+
+.result-buttons button {
+    flex: 1;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+}
+
+.result-buttons button:hover {
+    background: #f0f0f0;
+}
+
+.edge {
+    position: absolute;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.edge path {
+    fill: none;
+    stroke: #999;
+    stroke-width: 2;
+}
+
+.edge-arrow {
+    fill: #999;
+}
+
+#sidebar h3 {
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+#deleteNode {
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    border: 1px solid #dc3545;
+    border-radius: 4px;
+    background: white;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+#deleteNode:hover {
+    background: #dc3545;
+    color: white;
+}

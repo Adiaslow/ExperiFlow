@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ExperiFlow</title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <div class="toolbar">
+            <div class="logo">ExperiFlow</div>
+            <div class="menu-container">
+                <button class="menu-button">☰</button>
+                <div class="menu">
+                    <button id="saveProject" class="menu-item">
+                        Save Project
+                    </button>
+                    <button id="loadButton" class="menu-item">
+                        Load Project
+                    </button>
+                    <input
+                        type="file"
+                        id="loadProject"
+                        accept=".json"
+                        style="display: none"
+                    />
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="canvas-container">
+                <div id="canvas"></div>
+                <div class="minimap"></div>
+                <div class="canvas-controls">
+                    <button id="addNode" title="Add Node">+</button>
+                    <button id="recenterView" title="Center View">✼</button>
+                </div>
+            </div>
+            <div id="sidebar" class="hidden">
+                <h3>Edit Node</h3>
+                <input
+                    type="text"
+                    id="nodeTitle"
+                    placeholder="Hypothesis Title"
+                />
+                <textarea id="nodeNotes" placeholder="Notes"></textarea>
+                <div class="result-buttons">
+                    <button id="resultTrue">True</button>
+                    <button id="resultNull">Undecided</button>
+                    <button id="resultFalse">False</button>
+                </div>
+                <button id="deleteNode">Delete Node</button>
+            </div>
+        </div>
+        <script src="Node.js"></script>
+        <script src="Edge.js"></script>
+        <script src="FlowChart.js"></script>
+        <script src="Minimap.js"></script>
+        <script src="app.js"></script>
+    </body>
+</html>
