@@ -6,6 +6,8 @@
 ## Install NPX
 `npm install -g npx`
 
+## Clone Repository
+`git clone https://github.com/Adiaslow/ExperiFlow.git /Path/To/Directory`
 ## Navigate to directory
 `cd /Path/To/Directory/ExperiFlow`
 
