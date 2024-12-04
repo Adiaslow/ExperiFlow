@@ -11,7 +11,10 @@ body {
 }
 
 .toolbar {
-    position: relative;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -26,6 +29,24 @@ body {
     font-size: 1.5rem;
     font-weight: bold;
     color: #333;
+}
+
+#projectTitle {
+    font-size: 1.2rem;
+    padding: 0.5rem;
+    border: none;
+    background: transparent;
+    color: #333;
+    width: 100%;
+    max-width: 300px;
+}
+
+#projectTitle:focus {
+    outline: none;
+}
+
+#projectTitle::placeholder {
+    color: #999;
 }
 
 .menu-button {
@@ -72,21 +93,23 @@ body {
 }
 
 .menu button:hover {
-    transition: transform 0.3s ease;
-    transform: translateY(-5px);
-    box-shadow: 0 0px 8px rgba(0, 0, 0, 0.1);
+    // transition: transform 0.3s ease;
+    // transform: translateY(-5px);
+    // box-shadow: 0 0px 8px rgba(0, 0, 0, 0.1);
 }
 
 .container {
-    display: flex;
-    height: calc(100vh - 60px);
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    bottom: 0;
     overflow: hidden;
-    position: relative;
     z-index: 2;
 }
 
 .canvas-container {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -94,9 +117,9 @@ body {
 
 #canvas {
     position: absolute;
-    width: 5000px;
-    height: 5000px;
-    background: white;
+    width: 4096px;
+    height: 4096px;
+    background: '#hhhhhhh';
     transform-origin: 0 0;
     cursor: grab;
     z-index: 1;
@@ -107,6 +130,18 @@ body {
     cursor: grabbing;
 }
 
+@keyframes nodeAppear {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
 .node {
     position: absolute;
     width: 150px;
@@ -115,22 +150,75 @@ body {
     border-radius: 50%;
     box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
     cursor: move;
-    transition: all 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform: translate3d(0, 0, 0) scale(1);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
     padding: 1rem;
-    user-select: none; /* Add this line */
-    -webkit-user-select: none; /* For Safari */
-    -moz-user-select: none; /* For Firefox */
-    -ms-user-select: none; /* For IE/Edge */
+    user-select: none;
+    animation: nodeAppear 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: center center;
+    will-change: transform, box-shadow;
+}
+
+.node .title {
+    font-weight: bold;
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    word-wrap: break-word;
+    max-width: 90%;
+    line-height: 1.2;
+}
+
+.node .subtitle {
+    font-size: 0.8rem;
+    color: #666;
+    word-wrap: break-word;
+    max-width: 90%;
+    line-height: 1.2;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .node:hover {
-    transform: translateY(-5px);
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.2);
+    transform: translate3d(0, -5px, 0) scale(1);
+    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.node.selected {
+    transform: translate3d(0, -5px, 0) scale(1);
+    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes nodeAppear {
+    from {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.node .delete-node,
+.node .add-child {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.node:hover .delete-node,
+.node:hover .add-child,
+.node.selected .delete-node,
+.node.selected .add-child {
+    opacity: 1;
 }
 
 .node.true {
@@ -143,24 +231,6 @@ body {
 
 .node.null {
     background: white;
-}
-
-.node .title {
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-    word-wrap: break-word;
-    max-width: 90%;
-}
-
-.node .notes {
-    font-size: 0.8rem;
-    opacity: 0.7;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    max-width: 90%;
 }
 
 .delete-node {
@@ -215,29 +285,37 @@ body {
 }
 
 #sidebar {
+    position: fixed;
+    top: 80px;
+    right: 0;
     width: 300px;
+    height: calc(100vh - 80px);
     padding: 1.5rem;
     background: white;
     border-left: 0px solid #ddd;
     overflow-y: auto;
+    transform: translateX(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: -4px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
 }
 
 #sidebar.hidden {
-    display: none;
-}
-
-#sidebar.visible {
+    transform: translateX(100%);
     display: block;
 }
 
+#sidebar.visible {
+    transform: translateX(0);
+}
+
 .minimap {
-    position: absolute;
-    bottom: 40px;
-    right: 20px;
+    position: fixed;
+    top: 100px;
+    left: 20px;
     width: 200px;
-    height: 150px;
+    height: 200px;
     background: rgba(255, 255, 255, 0.9);
-    border: 0px solid #ddd;
     border-radius: 4px;
     overflow: hidden;
     z-index: 1000;
@@ -245,7 +323,7 @@ body {
 }
 
 .canvas-controls {
-    position: absolute;
+    position: fixed;
     left: 20px;
     bottom: 40px;
     display: flex;

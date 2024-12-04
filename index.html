@@ -9,6 +9,9 @@
     <body>
         <div class="toolbar">
             <div class="logo">ExperiFlow</div>
+            <div class="project-title">
+                <input type="text" id="projectTitle" placeholder="Untitled Project" />
+            </div>
             <div class="menu-container">
                 <button class="menu-button">☰</button>
                 <div class="menu">
@@ -37,25 +40,22 @@
                 </div>
             </div>
             <div id="sidebar" class="hidden">
-                <h3>Edit Node</h3>
-                <input
-                    type="text"
-                    id="nodeTitle"
-                    placeholder="Hypothesis Title"
-                />
+                <h3>Node Details</h3>
+                <input type="text" id="nodeTitle" placeholder="Title">
+                <input type="text" id="nodeSubtitle" placeholder="Subtitle">
                 <textarea id="nodeNotes" placeholder="Notes"></textarea>
                 <div class="result-buttons">
                     <button id="resultTrue">True</button>
-                    <button id="resultNull">Undecided</button>
+                    <button id="resultNull">Null</button>
                     <button id="resultFalse">False</button>
                 </div>
                 <button id="deleteNode">Delete Node</button>
             </div>
         </div>
-        <script src="Node.js"></script>
-        <script src="Edge.js"></script>
-        <script src="FlowChart.js"></script>
-        <script src="Minimap.js"></script>
-        <script src="app.js"></script>
+        <script type="module" src="GraphNode.js"></script>
+        <script type="module" src="GraphEdge.js"></script>
+        <script type="module" src="FlowChart.js"></script>
+        <script type="module" src="Minimap.js"></script>
+        <script type="module" src="app.js"></script>
     </body>
 </html>
