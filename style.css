@@ -117,9 +117,13 @@ body {
 
 #canvas {
     position: absolute;
-    width: 4096px;
-    height: 4096px;
-    background: '#hhhhhhh';
+    width: 5000px;
+    height: 5000px;
+    background-image:
+        linear-gradient(to right, #eeeeee 1px, transparent 0.5px),
+        linear-gradient(to bottom, #eeeeee 1px, transparent 0.5px);
+    background-size: 75px 75px;
+    background-color: #fefefe;
     transform-origin: 0 0;
     cursor: grab;
     z-index: 1;
@@ -146,12 +150,16 @@ body {
     position: absolute;
     width: 150px;
     height: 150px;
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 50%;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.1);
+    box-shadow:
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
+        inset 0 -5px 1px rgba(0, 0, 0, 0.1),
+        0 4px 6px rgba(0, 0, 0, 0.12);
     cursor: move;
-    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-        box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1),
+        box-shadow 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+        background 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     transform: translate3d(0, 0, 0) scale(1);
     display: flex;
     flex-direction: column;
@@ -188,13 +196,20 @@ body {
 
 .node:hover {
     transform: translate3d(0, -5px, 0) scale(1);
-    box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.5),
+        inset 0 -5px 1px rgba(0, 0, 0, 0.1),
+        0 8px 12px rgba(0, 0, 0, 0.12);
 }
 
 .node.selected {
     transform: translate3d(0, -5px, 0) scale(1);
-    box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.25);
+    box-shadow:
+        inset 0 1px 1px rgba(255, 255, 255, 0.5),
+        inset 0 -5px 1px rgba(0, 0, 0, 0.1),
+        0 8px 12px rgba(0, 0, 0, 0.15);
 }
+
 
 @keyframes nodeAppear {
     from {
@@ -222,15 +237,15 @@ body {
 }
 
 .node.true {
-    background: #d4edda;
+    background: rgba(220, 245, 225, 0.95);
 }
 
 .node.false {
-    background: #f8d7da;
+    background: rgba(250, 230, 230, 0.95);
 }
 
 .node.null {
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .delete-node {
