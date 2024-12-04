@@ -217,4 +217,6 @@ export class GraphNode {
     this.element.style.left = `${x}px`;
     this.element.style.top = `${y}px`;
   }
+
+
 }

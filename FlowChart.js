@@ -1,6 +1,6 @@
-import { GraphEdge } from './GraphEdge.js';
-import { GraphNode } from './GraphNode.js';
-import { Minimap } from './Minimap.js';
+import { GraphNode } from "./GraphNode.js";
+import { GraphEdge } from "./GraphEdge.js";
+import { Minimap } from "./Minimap.js";
 
 export class FlowChart {
   constructor() {
@@ -10,11 +10,13 @@ export class FlowChart {
     this.canvas = document.getElementById("canvas");
     this.scale = 1;
     this.offset = { x: 150, y: 150 };
-    this.minimap = new Minimap(this);
-    this.projectTitle = "Untitled Project";
     this.isPanning = false;
+    this.projectTitle = "Untitled Project";
 
-    // Initialize after DOM is ready and styles are applied
+    // Initialize minimap after canvas setup
+    this.minimap = new Minimap(this);
+
+    // Initialize after DOM is ready
     requestAnimationFrame(() => {
       this.initializeCenteredView();
       this.setupCanvasHandlers();
@@ -25,7 +27,6 @@ export class FlowChart {
       this.setupProjectTitle();
     });
   }
-
 
   initializeCenteredView() {
     const containerRect = this.canvas.parentElement.getBoundingClientRect();
@@ -158,10 +159,19 @@ export class FlowChart {
     });
   }
 
+  // Add this helper method to force a complete update
+  forceUpdate() {
+    this.updateEdges();
+    if (this.minimap) {
+      this.minimap.update();
+    }
+  }
+
   setupChildNodeHandler() {
     document.addEventListener("addChild", (e) => {
       const { parentId, position } = e.detail;
       const parentNode = this.nodes.get(parentId);
+
       if (parentNode) {
         // Deselect the parent node
         parentNode.close();
@@ -172,6 +182,8 @@ export class FlowChart {
         // Create child node at calculated position
         const childNode = this.addNode(childPosition);
         childNode.parentId = parentId;
+
+        // Add edge between parent and child
         this.addEdge(parentNode, childNode);
 
         // Select the new child node
@@ -248,17 +260,12 @@ export class FlowChart {
     };
   }
 
-  // Make sure addNode doesn't automatically select when called from addChild
   addNode(position = null, parentId = null) {
-    // Get the container dimensions
     const containerRect = this.canvas.parentElement.getBoundingClientRect();
 
     if (!position) {
-      // Calculate center position in screen coordinates
       const screenCenterX = containerRect.width / 2;
       const screenCenterY = containerRect.height / 2;
-
-      // Convert to canvas coordinates
       position = {
         x: (screenCenterX - this.offset.x) / this.scale,
         y: (screenCenterY - this.offset.y) / this.scale
@@ -272,7 +279,39 @@ export class FlowChart {
     this.nodes.set(id, node);
     this.canvas.appendChild(node.element);
 
+    // Update minimap without triggering edge updates
+    if (this.minimap) {
+      this.minimap.update();
+    }
+
     return node;
+  }
+
+  deleteNode(nodeId) {
+    const node = this.nodes.get(nodeId);
+    if (!node) return;
+
+    // Remove connected edges
+    Array.from(this.edges.entries()).forEach(([edgeId, edge]) => {
+      if (edgeId.includes(nodeId)) {
+        edge.element.remove();
+        this.edges.delete(edgeId);
+      }
+    });
+
+    // Remove node
+    node.element.remove();
+    this.nodes.delete(nodeId);
+
+    if (this.selectedNode?.id === nodeId) {
+      this.selectedNode = null;
+      document.getElementById("sidebar").classList.add("hidden");
+    }
+
+    // Update minimap after modifications
+    if (this.minimap) {
+      this.minimap.update();
+    }
   }
 
 
@@ -434,11 +473,33 @@ export class FlowChart {
   }
 
   addEdge(parentNode, childNode) {
+    if (!parentNode || !childNode) return;
+
     const edgeId = `${parentNode.id}-${childNode.id}`;
+
+    // Check if edge already exists
+    if (this.edges.has(edgeId)) return;
+
     const edge = new GraphEdge(parentNode, childNode);
     this.canvas.appendChild(edge.element);
     this.edges.set(edgeId, edge);
-    this.updateEdges();
+
+    // Update the edge's position
+    edge.update();
+
+    // Update minimap after adding edge
+    if (this.minimap) {
+      this.minimap.update();
+    }
+  }
+
+  updateEdges(skipMinimapUpdate = false) {
+    this.edges.forEach(edge => edge.update());
+
+    // Only update minimap if not skipped and minimap exists
+    if (!skipMinimapUpdate && this.minimap) {
+      this.minimap.update();
+    }
   }
 
   setupCanvasHandlers() {
@@ -534,12 +595,17 @@ export class FlowChart {
 
       this.updateEdges();
 
+      // Update minimap during animation
+      this.minimap.update();
+
       // Continue animation if not complete
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
         // Final position check and adjustment
         this.optimizeNodePositions(Array.from(affectedNodes.values()));
+        // Final minimap update after optimization
+        this.minimap.update();
       }
     };
 
@@ -585,32 +651,11 @@ export class FlowChart {
         }
       }
       this.updateEdges();
+      // Update minimap after each optimization iteration
+      this.minimap.update();
 
       // If adjustments are small enough, stop optimizing
       if (maxAdjustment < 0.5) break;
-    }
-  }
-
-
-  deleteNode(nodeId) {
-    const node = this.nodes.get(nodeId);
-    if (!node) return;
-
-    // Remove connected edges
-    this.edges.forEach((edge, edgeId) => {
-      if (edgeId.includes(nodeId)) {
-        edge.element.remove();
-        this.edges.delete(edgeId);
-      }
-    });
-
-    // Remove node
-    node.element.remove();
-    this.nodes.delete(nodeId);
-
-    if (this.selectedNode?.id === nodeId) {
-      this.selectedNode = null;
-      document.getElementById("sidebar").classList.add("hidden");
     }
   }
 
@@ -620,64 +665,18 @@ export class FlowChart {
     }
   }
 
-  centerView() {
-    const containerRect = this.canvas.parentElement.getBoundingClientRect();
-    const computedStyle = window.getComputedStyle(this.canvas);
-    const canvasWidth = parseInt(computedStyle.width);
-    const canvasHeight = parseInt(computedStyle.height);
-
-    if (this.nodes.size === 0) {
-      this.offset.x = (containerRect.width - canvasWidth * this.scale) / 2;
-      this.offset.y = (containerRect.height - canvasHeight * this.scale) / 2;
-    } else {
-      const bounds = this.getBounds();
-      const centerX = (bounds.maxX + bounds.minX) / 2;
-      const centerY = (bounds.maxY + bounds.minY) / 2;
-
-      this.offset.x = containerRect.width / 2 - centerX * this.scale;
-      this.offset.y = containerRect.height / 2 - centerY * this.scale;
-    }
-
-    this.updateTransform();
-  }
-
   updateTransform() {
     if (!this.canvas) return;
+
     this.canvas.style.transform = `translate(${this.offset.x}px, ${this.offset.y}px) scale(${this.scale})`;
-    this.updateEdges();
-    this.minimap.update(); // Add this line
-  }
 
-  updateEdges() {
-    this.edges.forEach((edge) => edge.update());
-  }
+    // Update edges without triggering minimap update
+    this.updateEdges(true);
 
-  getBounds() {
-    if (this.nodes.size === 0) {
-      return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    // Update minimap separately
+    if (this.minimap) {
+      this.minimap.update();
     }
-
-    const positions = Array.from(this.nodes.values()).map(
-      (node) => node.position,
-    );
-    return {
-      minX: Math.min(...positions.map((p) => p.x)),
-      maxX: Math.max(...positions.map((p) => p.x)),
-      minY: Math.min(...positions.map((p) => p.y)),
-      maxY: Math.max(...positions.map((p) => p.y)),
-    };
-  }
-
-  // Add these methods to your FlowChart class
-
-  saveToJSON() {
-    const projectData = {
-      projectTitle: this.projectTitle,
-      nodes: Array.from(this.nodes.values()).map(node => node.toJSON()),
-      scale: this.scale,
-      offset: this.offset
-    };
-    return JSON.stringify(projectData, null, 2);
   }
 
   loadFromJSON(jsonString) {
@@ -695,38 +694,66 @@ export class FlowChart {
       this.projectTitle = projectData.projectTitle || "Untitled Project";
       document.getElementById("projectTitle").value = this.projectTitle;
 
-      // Restore view state
+      // Restore view state if it exists
       if (projectData.scale) this.scale = projectData.scale;
-      if (projectData.offset) this.offset = projectData.offset;
-      this.updateTransform();
+      if (projectData.offset) {
+        this.offset = {
+          x: projectData.offset.x || 150,
+          y: projectData.offset.y || 150
+        };
+      }
 
       // First pass: Create all nodes
       projectData.nodes.forEach(nodeData => {
+        // Create new node with basic data
         const node = new GraphNode(
           nodeData.id,
           nodeData.title,
+          nodeData.subtitle,
           nodeData.notes,
           nodeData.position,
           nodeData.parentId
         );
-        node.update(nodeData);
+
+        // Update result separately since it's not in constructor
+        node.result = nodeData.result;
+
+        // Update node to ensure visual state matches
+        node.update({
+          title: nodeData.title,
+          subtitle: nodeData.subtitle,
+          notes: nodeData.notes,
+          result: nodeData.result
+        });
+
+        // Add node to collection and canvas
         this.nodes.set(nodeData.id, node);
         this.canvas.appendChild(node.element);
-
-        // Set up click handler
-        node.element.addEventListener("click", () => this.selectNode(node));
       });
 
       // Second pass: Create all edges
-      // Sort nodes to ensure parents are processed before children
-      const sortedNodes = this.sortNodesByHierarchy(projectData.nodes);
-      sortedNodes.forEach(nodeData => {
-        if (nodeData.parentId) {
-          const childNode = this.nodes.get(nodeData.id);
-          const parentNode = this.nodes.get(nodeData.parentId);
-          if (parentNode && childNode) {
-            this.addEdge(parentNode, childNode);
+      const processedEdges = new Set();
+      this.nodes.forEach(node => {
+        if (node.parentId) {
+          const parentNode = this.nodes.get(node.parentId);
+          if (parentNode) {
+            const edgeId = `${parentNode.id}-${node.id}`;
+            if (!processedEdges.has(edgeId)) {
+              this.addEdge(parentNode, node);
+              processedEdges.add(edgeId);
+            }
           }
+        }
+      });
+
+      // Update transform and view
+      this.updateTransform();
+
+      // Center view on loaded content
+      requestAnimationFrame(() => {
+        this.centerView();
+        if (this.minimap) {
+          this.minimap.update();
         }
       });
 
@@ -734,6 +761,136 @@ export class FlowChart {
       console.error("Error loading project:", error);
       throw new Error(`Failed to load project: ${error.message}`);
     }
+  }
+
+  centerView() {
+    if (this.nodes.size === 0) return;
+
+    const bounds = this.getBounds();
+    const containerRect = this.canvas.parentElement.getBoundingClientRect();
+
+    // Calculate the center of the content
+    const contentWidth = bounds.maxX - bounds.minX;
+    const contentHeight = bounds.maxY - bounds.minY;
+    const contentCenterX = bounds.minX + contentWidth / 2;
+    const contentCenterY = bounds.minY + contentHeight / 2;
+
+    // Calculate required offset to center content
+    this.offset.x = containerRect.width / 2 - contentCenterX * this.scale;
+    this.offset.y = containerRect.height / 2 - contentCenterY * this.scale;
+
+    this.updateTransform();
+  }
+
+  getBounds() {
+    if (this.nodes.size === 0) {
+      return { minX: 0, maxX: 0, minY: 0, maxY: 0 };
+    }
+
+    const positions = Array.from(this.nodes.values()).map(node => node.position);
+    const nodeSize = 150; // Account for node size
+    const padding = 50; // Add padding
+
+    return {
+      minX: Math.min(...positions.map(p => p.x)) - nodeSize / 2 - padding,
+      maxX: Math.max(...positions.map(p => p.x)) + nodeSize / 2 + padding,
+      minY: Math.min(...positions.map(p => p.y)) - nodeSize / 2 - padding,
+      maxY: Math.max(...positions.map(p => p.y)) + nodeSize / 2 + padding
+    };
+  }
+
+  loadFromJSON(jsonString) {
+    try {
+      // Clear existing state
+      this.nodes.clear();
+      this.edges.clear();
+      this.canvas.innerHTML = "";
+      this.selectedNode = null;
+
+      // Parse the JSON data
+      const projectData = JSON.parse(jsonString);
+
+      // Restore project title
+      this.projectTitle = projectData.projectTitle || "Untitled Project";
+      document.getElementById("projectTitle").value = this.projectTitle;
+
+      // Restore view state if it exists
+      if (projectData.scale) this.scale = projectData.scale;
+      if (projectData.offset) {
+        this.offset = {
+          x: projectData.offset.x || 150,
+          y: projectData.offset.y || 150
+        };
+      }
+
+      // First pass: Create all nodes
+      projectData.nodes.forEach(nodeData => {
+        // Create new node with basic data
+        const node = new GraphNode(
+          nodeData.id,
+          nodeData.title,
+          nodeData.subtitle,
+          nodeData.notes,
+          nodeData.position,
+          nodeData.parentId
+        );
+
+        // Update result separately since it's not in constructor
+        node.result = nodeData.result;
+
+        // Update node to ensure visual state matches
+        node.update({
+          title: nodeData.title,
+          subtitle: nodeData.subtitle,
+          notes: nodeData.notes,
+          result: nodeData.result
+        });
+
+        // Add node to collection and canvas
+        this.nodes.set(nodeData.id, node);
+        this.canvas.appendChild(node.element);
+      });
+
+      // Second pass: Create all edges
+      const processedEdges = new Set();
+      this.nodes.forEach(node => {
+        if (node.parentId) {
+          const parentNode = this.nodes.get(node.parentId);
+          if (parentNode) {
+            const edgeId = `${parentNode.id}-${node.id}`;
+            if (!processedEdges.has(edgeId)) {
+              this.addEdge(parentNode, node);
+              processedEdges.add(edgeId);
+            }
+          }
+        }
+      });
+
+      // Update transform and view
+      this.updateTransform();
+
+      // Center view on loaded content
+      requestAnimationFrame(() => {
+        this.centerView();
+        if (this.minimap) {
+          this.minimap.update();
+        }
+      });
+
+    } catch (error) {
+      console.error("Error loading project:", error);
+      throw new Error(`Failed to load project: ${error.message}`);
+    }
+  }
+
+  saveToJSON() {
+    const projectData = {
+      projectTitle: this.projectTitle,
+      nodes: Array.from(this.nodes.values()).map(node => node.toJSON()),
+      scale: this.scale,
+      offset: this.offset
+    };
+    return JSON.stringify(projectData, null, 2);
   }
 
   // Helper method to sort nodes by hierarchy
