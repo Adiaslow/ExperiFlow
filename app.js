@@ -14,27 +14,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Add Node Button
   document.getElementById("addNode").addEventListener("click", () => {
-    // Just call addNode() since it now handles selection and sidebar internally
     flowChart.addNode();
-
-    // Focus the title input
     const titleInput = document.getElementById("nodeTitle");
     titleInput.focus();
     titleInput.select();
   });
 
-  // Global click handler for closing menus and deselecting nodes
+  // Organize and Settings radial menus
+  document.getElementById('organize').addEventListener('click', function () {
+    this.classList.toggle('active');
+    document.getElementById('organizeMenu').classList.toggle('active');
+    document.getElementById('settings').classList.remove('active');
+    document.getElementById('settingsMenu').classList.remove('active');
+  });
+
+  document.getElementById('settings').addEventListener('click', function () {
+    this.classList.toggle('active');
+    document.getElementById('settingsMenu').classList.toggle('active');
+    document.getElementById('organize').classList.remove('active');
+    document.getElementById('organizeMenu').classList.remove('active');
+  });
+
   document.addEventListener("click", (e) => {
     const menu = document.querySelector(".menu");
     const menuButton = document.querySelector(".menu-button");
     const sidebar = document.getElementById("sidebar");
+    const organizeButton = document.getElementById("organize");
+    const settingsButton = document.getElementById("settings");
+    const organizeMenu = document.getElementById("organizeMenu");
+    const settingsMenu = document.getElementById("settingsMenu");
 
-    // Close menu if click is outside menu and menu button
+    // Close radial menus if click is outside
+    const isRadialMenuClick = e.target.closest('.radial-menu') ||
+      e.target.id === 'organize' ||
+      e.target.id === 'settings';
+
+    if (!isRadialMenuClick) {
+      organizeButton.classList.remove('active');
+      settingsButton.classList.remove('active');
+      organizeMenu.classList.remove('active');
+      settingsMenu.classList.remove('active');
+    }
+
+    // Original menu and node handling code...
     if (!menu.contains(e.target) && !menuButton.contains(e.target)) {
       menu.classList.remove("visible");
     }
 
-    // Only handle deselection if we're not panning and not clicking on a node/sidebar/menu
     if (!flowChart.isPanning) {
       const clickedOnNode = e.target.closest('.node');
       const clickedOnSidebar = sidebar.contains(e.target);
@@ -42,15 +68,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const clickedOnAddButton = e.target.id === "addNode";
 
       if (!clickedOnNode && !clickedOnSidebar && !clickedOnMenu && !clickedOnAddButton) {
-        // Close sidebar
         sidebar.classList.add("hidden");
-
-        // Deselect current node if one is selected
         if (flowChart.selectedNode) {
           flowChart.selectedNode.close();
           flowChart.selectedNode = null;
-
-          // Dispatch nodeClosed event
           document.dispatchEvent(
             new CustomEvent("nodeClosed", {
               detail: { nodeId: null }

@@ -35,8 +35,26 @@
                 <div id="canvas"></div>
                 <div class="minimap"></div>
                 <div class="canvas-controls">
-                    <button id="addNode" title="Add Node">+</button>
-                    <button id="recenterView" title="Center View">✼</button>
+                    <div class="control-button">
+                        <button id="addNode" title="Add Node">⊕</button>
+                    </div>
+                    <div class="control-button">
+                        <button id="recenterView" title="Center View">☉</button>
+                    </div>
+                    <div class="control-button">
+                        <button id="organize" title="Organize Nodes">✣</button>
+                        <div class="radial-menu" id="organizeMenu">
+                            <button title="Hierarchical Layout">∴</button>
+                            <button title="Radial Layout">✻</button>
+                        </div>
+                    </div>
+                    <div class="control-button">
+                        <button id="settings" title="Settings">⚙︎</button>
+                        <div class="radial-menu" id="settingsMenu">
+                            <button title="Toggle Minimap">⊞</button>
+                            <button title="Toggle Theme">◐</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="sidebar" class="hidden">

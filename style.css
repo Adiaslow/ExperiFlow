@@ -1,3 +1,106 @@
+:root {
+    /* Core sea glass colors */
+    --seaglass-white: #f5f7f7;
+    --seaglass-foam: #e7eaea;
+    --seaglass-pale-blue: #c5d5db;
+    --seaglass-aqua: #a8c5c5;
+    --seaglass-seafoam: #98b4b3;
+    --seaglass-sage: #89aca6;
+    --seaglass-teal: #679999;
+    --seaglass-cobalt: #4b7f99;
+    --seaglass-amber: #dbc5a4;
+    --seaglass-brown: #b39f8f;
+
+    /* Primary colors as sea glass */
+    --seaglass-red: #c5a3a3;
+    --seaglass-blue: #a3b8c5;
+    --seaglass-yellow: #c5c0a3;
+    --seaglass-green: #a3c5b1;
+    --seaglass-purple: #b3a3c5;
+    --seaglass-orange: #c5b3a3;
+
+    /* Opacity variants */
+    --seaglass-white-95: rgba(245, 247, 247, 0.95);
+    --seaglass-white-90: rgba(245, 247, 247, 0.90);
+    --seaglass-white-80: rgba(245, 247, 247, 0.80);
+    --seaglass-white-70: rgba(245, 247, 247, 0.70);
+
+    --seaglass-foam-95: rgba(231, 234, 234, 0.95);
+    --seaglass-foam-90: rgba(231, 234, 234, 0.90);
+    --seaglass-foam-80: rgba(231, 234, 234, 0.80);
+    --seaglass-foam-70: rgba(231, 234, 234, 0.70);
+
+    --seaglass-pale-blue-95: rgba(197, 213, 219, 0.95);
+    --seaglass-pale-blue-90: rgba(197, 213, 219, 0.90);
+    --seaglass-pale-blue-80: rgba(197, 213, 219, 0.80);
+    --seaglass-pale-blue-70: rgba(197, 213, 219, 0.70);
+
+    --seaglass-aqua-95: rgba(168, 197, 197, 0.95);
+    --seaglass-aqua-90: rgba(168, 197, 197, 0.90);
+    --seaglass-aqua-80: rgba(168, 197, 197, 0.80);
+    --seaglass-aqua-70: rgba(168, 197, 197, 0.70);
+
+    --seaglass-seafoam-95: rgba(152, 180, 179, 0.95);
+    --seaglass-seafoam-90: rgba(152, 180, 179, 0.90);
+    --seaglass-seafoam-80: rgba(152, 180, 179, 0.80);
+    --seaglass-seafoam-70: rgba(152, 180, 179, 0.70);
+
+    --seaglass-sage-95: rgba(137, 172, 166, 0.95);
+    --seaglass-sage-90: rgba(137, 172, 166, 0.90);
+    --seaglass-sage-80: rgba(137, 172, 166, 0.80);
+    --seaglass-sage-70: rgba(137, 172, 166, 0.70);
+
+    --seaglass-teal-95: rgba(103, 153, 153, 0.95);
+    --seaglass-teal-90: rgba(103, 153, 153, 0.90);
+    --seaglass-teal-80: rgba(103, 153, 153, 0.80);
+    --seaglass-teal-70: rgba(103, 153, 153, 0.70);
+
+    --seaglass-cobalt-95: rgba(75, 127, 153, 0.95);
+    --seaglass-cobalt-90: rgba(75, 127, 153, 0.90);
+    --seaglass-cobalt-80: rgba(75, 127, 153, 0.80);
+    --seaglass-cobalt-70: rgba(75, 127, 153, 0.70);
+
+    --seaglass-amber-95: rgba(219, 197, 164, 0.95);
+    --seaglass-amber-90: rgba(219, 197, 164, 0.90);
+    --seaglass-amber-80: rgba(219, 197, 164, 0.80);
+    --seaglass-amber-70: rgba(219, 197, 164, 0.70);
+
+    --seaglass-brown-95: rgba(179, 159, 143, 0.95);
+    --seaglass-brown-90: rgba(179, 159, 143, 0.90);
+    --seaglass-brown-80: rgba(179, 159, 143, 0.80);
+    --seaglass-brown-70: rgba(179, 159, 143, 0.70);
+
+    --seaglass-red-95: rgba(197, 163, 163, 0.95);
+    --seaglass-red-90: rgba(197, 163, 163, 0.90);
+    --seaglass-red-80: rgba(197, 163, 163, 0.80);
+    --seaglass-red-70: rgba(197, 163, 163, 0.70);
+
+    --seaglass-blue-95: rgba(163, 184, 197, 0.95);
+    --seaglass-blue-90: rgba(163, 184, 197, 0.90);
+    --seaglass-blue-80: rgba(163, 184, 197, 0.80);
+    --seaglass-blue-70: rgba(163, 184, 197, 0.70);
+
+    --seaglass-yellow-95: rgba(197, 192, 163, 0.95);
+    --seaglass-yellow-90: rgba(197, 192, 163, 0.90);
+    --seaglass-yellow-80: rgba(197, 192, 163, 0.80);
+    --seaglass-yellow-70: rgba(197, 192, 163, 0.70);
+
+    --seaglass-green-95: rgba(163, 197, 177, 0.95);
+    --seaglass-green-90: rgba(163, 197, 177, 0.90);
+    --seaglass-green-80: rgba(163, 197, 177, 0.80);
+    --seaglass-green-70: rgba(163, 197, 177, 0.70);
+
+    --seaglass-purple-95: rgba(179, 163, 197, 0.95);
+    --seaglass-purple-90: rgba(179, 163, 197, 0.90);
+    --seaglass-purple-80: rgba(179, 163, 197, 0.80);
+    --seaglass-purple-70: rgba(179, 163, 197, 0.70);
+
+    --seaglass-orange-95: rgba(197, 179, 163, 0.95);
+    --seaglass-orange-90: rgba(197, 179, 163, 0.90);
+    --seaglass-orange-80: rgba(197, 179, 163, 0.80);
+    --seaglass-orange-70: rgba(197, 179, 163, 0.70);
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -6,7 +109,7 @@
 
 body {
     font-family: -apple-system, system-ui, sans-serif;
-    background: #f5f5f5;
+    background: var(--seaglass-white);
     overflow: hidden;
 }
 
@@ -117,13 +220,13 @@ body {
 
 #canvas {
     position: absolute;
-    width: 5000px;
-    height: 5000px;
+    width: 5025px;
+    height: 5025px;
     background-image:
-        linear-gradient(to right, #eeeeee 1px, transparent 0.5px),
-        linear-gradient(to bottom, #eeeeee 1px, transparent 0.5px);
+        linear-gradient(to right, var(--seaglass-white) 1px, transparent 0.5px),
+        linear-gradient(to bottom, var(--seaglass-white) 1px, transparent 0.5px);
     background-size: 75px 75px;
-    background-color: #fefefe;
+    background-color: var(--seaglass-foam);
     transform-origin: 0 0;
     cursor: grab;
     z-index: 1;
@@ -150,7 +253,7 @@ body {
     position: absolute;
     width: 150px;
     height: 150px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--seaglass-white-90);
     border-radius: 50%;
     box-shadow:
         inset 0 1px 1.5px rgba(255, 255, 255, 0.5),
@@ -225,7 +328,6 @@ body {
 
 .node .delete-node,
 .node .add-child {
-    opacity: 0;
     transition: opacity 0.3s ease;
 }
 
@@ -237,15 +339,17 @@ body {
 }
 
 .node.true {
-    background: rgba(220, 245, 225, 0.95);
+    background: var(--seaglass-green-90);
+    color: var(--seaglass-white);
 }
 
 .node.false {
-    background: rgba(250, 230, 230, 0.95);
+    background: var(--seaglass-red-90);
+    color: var(--seaglass-white);
 }
 
 .node.null {
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--seaglass-white-90);
 }
 
 .delete-node {
@@ -254,7 +358,7 @@ body {
     right: 10px;
     width: 24px;
     height: 24px;
-    background: #f0f0f0;
+    background: var(--seaglass-white-90);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -270,7 +374,7 @@ body {
 }
 
 .delete-node:hover {
-    background: #e0e0e0;
+    background: var(--seaglass-white);
 }
 
 .add-child {
@@ -280,7 +384,7 @@ body {
     transform: translateX(-50%);
     width: 24px;
     height: 24px;
-    background: #f0f0f0;
+    background: var(--seaglass-white-90);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -296,7 +400,7 @@ body {
 }
 
 .add-child:hover {
-    background: #e0e0e0;
+    background: var(--seaglass-white);
 }
 
 #sidebar {
@@ -325,43 +429,24 @@ body {
 }
 
 .minimap {
+    --minimap-background: var(--seaglass-foam-80);
+    --minimap-edge-color: var(--seaglass-seafoam-80);
+    --minimap-node-stroke: var(--seaglass-sage-80);
+    --minimap-node-fill: var(--seaglass-white-80);
+    --minimap-node-true: var(--seaglass-green-90);
+    --minimap-node-false: var(--seaglass-red-90);
+    --minimap-viewport: var(--seaglass-cobalt-80);
+
     position: fixed;
-    top: 100px;
+    bottom: 20px;
     left: 20px;
     width: 200px;
     height: 200px;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--minimap-background);
     border-radius: 4px;
     overflow: hidden;
     z-index: 1000;
     box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
-}
-
-.canvas-controls {
-    position: fixed;
-    left: 20px;
-    bottom: 40px;
-    display: flex;
-    gap: 0.5rem;
-    z-index: 1000;
-}
-
-.canvas-controls button {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
-    cursor: pointer;
-    font-size: 20px;
-    border: 0px solid #ddd;
-}
-
-.canvas-controls button:hover {
-    background: #f0f0f0;
 }
 
 input,
@@ -411,6 +496,7 @@ textarea {
 }
 
 .edge-arrow {
+    transition: translate 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     fill: #999;
 }
 
@@ -433,4 +519,82 @@ textarea {
 #deleteNode:hover {
     background: #dc3545;
     color: white;
+}
+
+.canvas-controls {
+    position: fixed;
+    left: 20px;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    z-index: 1000;
+}
+
+.control-button {
+    position: relative;
+}
+
+.control-button button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 20px;
+    border: 0px solid #ddd;
+}
+
+.control-button button:hover {
+    background: #f0f0f0;
+}
+
+.radial-menu {
+    position: absolute;
+    left: 60px;
+    top: 50%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    transform: translateY(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radial-menu.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.radial-menu button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 18px;
+    border: 0px solid #ddd;
+    transform: scale(0);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.radial-menu.active button {
+    transform: scale(1);
+}
+
+.radial-menu button:nth-child(2) {
+    transition-delay: 0.05s;
+}
+
+.radial-menu button:hover {
+    background: #f0f0f0;
 }

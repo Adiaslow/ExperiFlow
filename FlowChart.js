@@ -85,7 +85,6 @@ export class FlowChart {
     });
 
     this.canvas.addEventListener("wheel", (e) => {
-      e.preventDefault();
 
       // Check if it's a pinch gesture by looking at the resolution of deltaY
       // Pinch gestures typically have fractional deltaY values
@@ -114,7 +113,7 @@ export class FlowChart {
       }
 
       this.updateTransform();
-    });
+    }, { passive: true });
   }
 
   setupNodeMoveHandler() {
