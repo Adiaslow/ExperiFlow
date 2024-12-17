@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
         <title>ExperiFlow</title>
         <link rel="stylesheet" href="style.css" />
     </head>
@@ -36,23 +36,52 @@
                 <div class="minimap"></div>
                 <div class="canvas-controls">
                     <div class="control-button">
-                        <button id="addNode" title="Add Node">⊕</button>
+                        <button id="addNode" title="Add Node">
+                            <i data-lucide="circle-plus"></i>
+                        </button>
                     </div>
                     <div class="control-button">
-                        <button id="recenterView" title="Center View">☉</button>
+                        <button id="recenterView" title="Center View">
+                            <i data-lucide="focus"></i>
+                        </button>
                     </div>
                     <div class="control-button">
-                        <button id="organize" title="Organize Nodes">✣</button>
+                        <button id="organize" title="Organize Nodes">
+                            <i data-lucide="route" style="transform: rotate(90deg)"></i>
+                        </button>
                         <div class="radial-menu" id="organizeMenu">
-                            <button title="Hierarchical Layout">∴</button>
-                            <button title="Radial Layout">✻</button>
+                            <button id="hierarchical-layout" title="Hierarchical Layout">
+                                <i data-lucide="share-2" style="transform: rotate(90deg)"></i>
+                            </button>
+                            <button id="freeform-layerout" title="Freeform Layout">
+                                <i data-lucide="waypoints"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="control-button">
-                        <button id="settings" title="Settings">⚙︎</button>
+                        <button id="data" title="Manage Data">
+                            <i data-lucide="hard-drive"></i>
+                        </button>
+                        <div class="radial-menu" id="dataMenu">
+                            <button title="Import Data">
+                                <i data-lucide="file-input"></i>
+                            </button>
+                            <button title="Export Data">
+                                <i data-lucide="file-output"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="control-button">
+                        <button id="settings" title="Settings">
+                            <i data-lucide="settings"></i>
+                        </button>
                         <div class="radial-menu" id="settingsMenu">
-                            <button title="Toggle Minimap">⊞</button>
-                            <button title="Toggle Theme">◐</button>
+                            <button title="Toggle Minimap">
+                                <i data-lucide="land-plot"></i>
+                            </button>
+                            <button title="Toggle Theme">
+                                <i data-lucide="sun-moon"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -70,6 +99,7 @@
                 <button id="deleteNode">Delete Node</button>
             </div>
         </div>
+        <script src="./lucide/dist/umd/lucide.min.js"></script>
         <script type="module" src="GraphNode.js"></script>
         <script type="module" src="GraphEdge.js"></script>
         <script type="module" src="FlowChart.js"></script>

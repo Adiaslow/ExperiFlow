@@ -1,4 +1,4 @@
-import { GraphNode } from "./GraphNode.js";
+import GraphNode from "./GraphNode.js";
 import { GraphEdge } from "./GraphEdge.js";
 import { Minimap } from "./Minimap.js";
 
@@ -12,6 +12,7 @@ export class FlowChart {
     this.offset = { x: 150, y: 150 };
     this.isPanning = false;
     this.projectTitle = "Untitled Project";
+    this.layoutMode = 'hierarchical'; // Default to hierarchical
 
     // Initialize minimap after canvas setup
     this.minimap = new Minimap(this);
@@ -57,7 +58,35 @@ export class FlowChart {
     });
   }
 
+  setupNodeMoveHandler() {
+    document.addEventListener("nodeMove", (e) => {
+      const movedNode = this.nodes.get(e.detail.nodeId);
+      if (movedNode) {
+        // If it's a root node or we're in freeform mode, move the entire subtree
+        if (this.layoutMode === 'freeform' || !movedNode.parentId) {
+          const deltaX = e.detail.x - movedNode.position.x;
+          const deltaY = e.detail.y - movedNode.position.y;
 
+          // Move all descendant nodes
+          const moveSubtree = (nodeId, dx, dy) => {
+            const node = this.nodes.get(nodeId);
+            if (node) {
+              node.updatePosition(node.position.x + dx, node.position.y + dy);
+              Array.from(this.nodes.values())
+                .filter(n => n.parentId === nodeId)
+                .forEach(child => moveSubtree(child.id, dx, dy));
+            }
+          };
+
+          moveSubtree(movedNode.id, deltaX, deltaY);
+        } else if (this.layoutMode === 'hierarchical') {
+          // If it's a child node in hierarchical mode, rearrange the tree
+          requestAnimationFrame(() => this.arrangeHierarchically());
+        }
+      }
+      this.updateEdges();
+    });
+  }
   setupPanAndZoom() {
     let startX = 0;
     let startY = 0;
@@ -892,7 +921,6 @@ export class FlowChart {
     return JSON.stringify(projectData, null, 2);
   }
 
-  // Helper method to sort nodes by hierarchy
   sortNodesByHierarchy(nodesData) {
     const nodeMap = new Map(nodesData.map(node => [node.id, node]));
     const sorted = [];
@@ -918,5 +946,150 @@ export class FlowChart {
     });
 
     return sorted;
+  }
+
+  arrangeHierarchically() {
+    if (this.layoutMode !== 'hierarchical') return;
+
+    // Constants for layout
+    const LEVEL_HEIGHT = 300;  // Vertical spacing between levels
+    const MIN_NODE_SPACING = 50;  // Reduced minimum horizontal spacing between nodes
+    const NODE_WIDTH = 150;  // Actual node width
+
+    // Find all root nodes (nodes without parents)
+    const rootNodes = Array.from(this.nodes.values())
+      .filter(node => !node.parentId)
+      .map(node => node.id);
+
+    if (rootNodes.length === 0) return;
+
+    // First pass: Calculate subtree sizes
+    const getSubtreeWidth = (nodeId) => {
+      const children = Array.from(this.nodes.values())
+        .filter(node => node.parentId === nodeId)
+        .map(node => node.id);
+
+      if (children.length === 0) {
+        return NODE_WIDTH;
+      }
+
+      const childrenWidths = children.map(getSubtreeWidth);
+      const totalChildrenWidth = childrenWidths.reduce((a, b) => a + b, 0);
+      const spacingWidth = (children.length - 1) * MIN_NODE_SPACING;
+
+      return Math.max(NODE_WIDTH, totalChildrenWidth + spacingWidth);
+    };
+
+    // Build tree structure with accurate widths
+    const buildTree = (nodeId) => {
+      const children = Array.from(this.nodes.values())
+        .filter(node => node.parentId === nodeId)
+        .map(node => node.id);
+
+      const subtrees = children.map(childId => buildTree(childId));
+      const width = getSubtreeWidth(nodeId);
+
+      return {
+        id: nodeId,
+        children: subtrees,
+        width: width
+      };
+    };
+
+    const trees = rootNodes.map(rootId => buildTree(rootId));
+
+    // Calculate positions for all nodes
+    const startPositions = new Map();
+    const targetPositions = new Map();
+
+    // Store initial positions
+    this.nodes.forEach(node => {
+      startPositions.set(node.id, { ...node.position });
+    });
+
+    // Calculate positions for a tree
+    const calculatePositions = (node, centerX, y, level = 0) => {
+      const currentNode = this.nodes.get(node.id);
+
+      // Position this node at the center point
+      if (!currentNode.parentId) {
+        // Root node stays in place
+        targetPositions.set(node.id, { ...currentNode.position });
+      } else {
+        targetPositions.set(node.id, { x: centerX, y });
+      }
+
+      if (node.children.length > 0) {
+        const currentPos = targetPositions.get(node.id);
+        const totalWidth = node.children.reduce((sum, child) => sum + child.width, 0);
+        const totalSpacing = (node.children.length - 1) * MIN_NODE_SPACING;
+        const totalChildrenArea = totalWidth + totalSpacing;
+
+        // Start position for first child
+        let childX = currentPos.x - (totalChildrenArea / 2);
+
+        // Position each child
+        node.children.forEach(child => {
+          // Position child at its center
+          const childCenterX = childX + (child.width / 2);
+          calculatePositions(child, childCenterX, currentPos.y + LEVEL_HEIGHT, level + 1);
+          childX += child.width + MIN_NODE_SPACING;
+        });
+      }
+    };
+
+    // Position each tree
+    let currentX = 0;
+    const treeSpacing = MIN_NODE_SPACING * 2; // Extra spacing between main trees
+
+    trees.forEach((tree, index) => {
+      if (index === 0) {
+        // Position first tree based on its root's current position
+        const rootNode = this.nodes.get(tree.id);
+        currentX = rootNode.position.x;
+      }
+
+      calculatePositions(tree, currentX, this.nodes.get(tree.id).position.y);
+      currentX += tree.width + treeSpacing;
+    });
+
+    // Animate to new positions
+    const ANIMATION_DURATION = 1000;
+    const startTime = performance.now();
+
+    const animate = (currentTime) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / ANIMATION_DURATION, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+
+      // Update positions of all nodes except root nodes
+      this.nodes.forEach(node => {
+        if (!node.parentId) return; // Skip root nodes
+
+        const start = startPositions.get(node.id);
+        const target = targetPositions.get(node.id);
+
+        if (start && target) {
+          const currentPosition = {
+            x: start.x + (target.x - start.x) * eased,
+            y: start.y + (target.y - start.y) * eased
+          };
+
+          node.updatePosition(currentPosition.x, currentPosition.y);
+        }
+      });
+
+      // Update edges and minimap
+      this.updateEdges();
+      if (this.minimap) {
+        this.minimap.update();
+      }
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+
+    requestAnimationFrame(animate);
   }
 }

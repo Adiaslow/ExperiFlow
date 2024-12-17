@@ -1,4 +1,4 @@
-export class GraphNode {
+export default class GraphNode {
   constructor(
     id,
     title = "New Hypothesis",
@@ -209,6 +209,7 @@ export class GraphNode {
           },
         }),
       );
+      flowChart.arrangeHierarchically();
     });
   }
 

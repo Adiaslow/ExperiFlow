@@ -1,6 +1,7 @@
 import { FlowChart } from "./FlowChart.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  window.lucide.createIcons();
   const flowChart = new FlowChart();
   // Store flowChart instance globally for Node class to access
   window.flowChart = flowChart;
@@ -18,45 +19,69 @@ document.addEventListener("DOMContentLoaded", () => {
     const titleInput = document.getElementById("nodeTitle");
     titleInput.focus();
     titleInput.select();
+    // Arrange after adding node
+    flowChart.arrangeHierarchically();
   });
 
   // Organize and Settings radial menus
   document.getElementById('organize').addEventListener('click', function () {
     this.classList.toggle('active');
     document.getElementById('organizeMenu').classList.toggle('active');
+    document.getElementById('data').classList.remove('active');
+    document.getElementById('dataMenu').classList.remove('active');
     document.getElementById('settings').classList.remove('active');
     document.getElementById('settingsMenu').classList.remove('active');
   });
 
+  document.getElementById('data').addEventListener('click', function () {
+    this.classList.toggle('active');
+    document.getElementById('dataMenu').classList.toggle('active');
+    document.getElementById('organize').classList.remove('active');
+    document.getElementById('organizeMenu').classList.remove('active');
+    document.getElementById('settings').classList.remove('active');
+    document.getElementById('settingsMenu').classList.remove('active');
+  }
+  );
   document.getElementById('settings').addEventListener('click', function () {
     this.classList.toggle('active');
     document.getElementById('settingsMenu').classList.toggle('active');
     document.getElementById('organize').classList.remove('active');
     document.getElementById('organizeMenu').classList.remove('active');
+    document.getElementById('data').classList.remove('active');
+    document.getElementById('dataMenu').classList.remove('active');
   });
+
+  document.getElementById('hierarchical-layout').addEventListener('click', () => {
+    flowChart.layoutMode = 'hierarchical';
+    flowChart.arrangeHierarchically();
+  });
+
+  document.getElementById('freeform-layout').addEventListener('click', () => {
+    flowChart.layoutMode = 'freeform';
+  });
+
+
 
   document.addEventListener("click", (e) => {
     const menu = document.querySelector(".menu");
     const menuButton = document.querySelector(".menu-button");
     const sidebar = document.getElementById("sidebar");
-    const organizeButton = document.getElementById("organize");
-    const settingsButton = document.getElementById("settings");
-    const organizeMenu = document.getElementById("organizeMenu");
-    const settingsMenu = document.getElementById("settingsMenu");
 
-    // Close radial menus if click is outside
+    // Improve radial menu click detection
     const isRadialMenuClick = e.target.closest('.radial-menu') ||
-      e.target.id === 'organize' ||
-      e.target.id === 'settings';
+      e.target.closest('#organize') ||
+      e.target.closest('#settings') ||
+      e.target.closest('#data');
 
     if (!isRadialMenuClick) {
-      organizeButton.classList.remove('active');
-      settingsButton.classList.remove('active');
-      organizeMenu.classList.remove('active');
-      settingsMenu.classList.remove('active');
+      // Close all menus
+      ['organize', 'data', 'settings'].forEach(id => {
+        document.getElementById(id)?.classList.remove('active');
+        document.getElementById(id + 'Menu')?.classList.remove('active');
+      });
     }
 
-    // Original menu and node handling code...
+    // Rest of your click handling...
     if (!menu.contains(e.target) && !menuButton.contains(e.target)) {
       menu.classList.remove("visible");
     }
@@ -65,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const clickedOnNode = e.target.closest('.node');
       const clickedOnSidebar = sidebar.contains(e.target);
       const clickedOnMenu = menu.contains(e.target) || menuButton.contains(e.target);
-      const clickedOnAddButton = e.target.id === "addNode";
+      const clickedOnAddButton = e.target.closest('#addNode');
 
       if (!clickedOnNode && !clickedOnSidebar && !clickedOnMenu && !clickedOnAddButton) {
         sidebar.classList.add("hidden");
