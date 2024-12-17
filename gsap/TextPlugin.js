@@ -120,8 +120,8 @@ export var TextPlugin = {
   render: function render(ratio, data) {
     if (ratio > 1) {
       ratio = 1;
-    } else if (ratio < 0) {
-      ratio = 0;
+    } else {
+      ratio = Math.max(ratio, 0)
     }
 
     if (data.from) {

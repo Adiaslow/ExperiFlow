@@ -52,7 +52,9 @@ export class Minimap {
       this.handleMinimapInteraction(e);
     });
     this.canvas.addEventListener("mousemove", (e) => {
-      if (isDragging) this.handleMinimapInteraction(e);
+      if (isDragging) {
+        this.handleMinimapInteraction(e);
+      }
     });
     document.addEventListener("mouseup", () => {
       isDragging = false;
@@ -73,7 +75,9 @@ export class Minimap {
   }
 
   update() {
-    if (!this.ctx) return;
+    if (!this.ctx) {
+      return;
+    }
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.ctx.fillStyle = this.styles.getPropertyValue('--minimap-background');

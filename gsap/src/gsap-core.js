@@ -102,7 +102,7 @@ let _config = {
 	},
 	_lazyRender = () => {
 		let l = _lazyTweens.length,
-			a = _lazyTweens.slice(0),
+			a = _lazyTweens.slice(),
 			i, tween;
 		_lazyLookup = {};
 		_lazyTweens.length = 0;
@@ -224,7 +224,7 @@ let _config = {
 		return animation;
 	},
 	_recacheAncestors = animation => {
-		let parent = animation.parent;
+		let {parent} = animation;
 		while (parent && parent.parent) { //sometimes we must force a re-sort of all children and update the duration/totalDuration of all ancestor timelines immediately in case, for example, in the middle of a render loop, one tween alters another tween's timeScale which shoves its startTime before 0, forcing the parent timeline to shift around and shiftChildren() which could affect that next tween's render (startTime). Doesn't matter for the root timeline though.
 			parent._dirty = 1;
 			parent.totalDuration();
@@ -486,7 +486,7 @@ let _config = {
 				for (j = 0; j < l; j++) {
 					x = (j % wrapAt) - originX;
 					y = originY - ((j / wrapAt) | 0);
-					distances[j] = d = !axis ? _sqrt(x * x + y * y) : Math.abs((axis === "y") ? y : x);
+					distances[j] = d = axis ? Math.abs((axis === "y") ? y : x) : _sqrt(x * x + y * y);
 					(d > max) && (max = d);
 					(d < min) && (min = d);
 				}
@@ -658,7 +658,9 @@ let _config = {
 	_quickTween,
 	_registerPluginQueue = [],
 	_createPlugin = config => {
-		if (!config) return;
+		if (!config) {
+    return;
+  }
 		config = (!config.name && config.default) || config; // UMD packaging wraps things oddly, so for example MotionPathHelper becomes {MotionPathHelper:MotionPathHelper, default:MotionPathHelper}.
 		if (_windowExists() || config.headless) { // edge case: some build tools may pass in a null/undefined value
 			let name = config.name,
@@ -910,7 +912,7 @@ let _config = {
 				if (overlap > 0 || manual) {
 					frame = ++_self.frame;
 					_delta = time - _self.time * 1000;
-					_self.time = time = time / 1000;
+					_self.time = time /= 1000;
 					_nextTime += overlap + (overlap >= _gap ? 4 : _gap - overlap);
 					dispatch = 1;
 				}
@@ -1044,7 +1046,7 @@ let _config = {
 			child = child._next;
 		}
 	},
-	_parseEase = (ease, defaultEase) => !ease ? defaultEase : (_isFunction(ease) ? ease : _easeMap[ease] || _configEaseFromString(ease)) || defaultEase,
+	_parseEase = (ease, defaultEase) => ease ? (_isFunction(ease) ? ease : _easeMap[ease] || _configEaseFromString(ease)) || defaultEase : defaultEase,
 	_insertEase = (names, easeIn, easeOut = p => 1 - easeIn(1 - p), easeInOut = (p => p < .5 ? easeIn(p * 2) / 2 : 1 - easeIn((1 - p) * 2) / 2)) => {
 		let ease = {easeIn, easeOut, easeInOut},
 			lowercaseName;
@@ -1324,7 +1326,7 @@ export class Animation {
 
 	rawTime(wrapRepeats) {
 		let parent = this.parent || this._dp; // _dp = detached parent
-		return !parent ? this._tTime : (wrapRepeats && (!this._ts || (this._repeat && this._time && this.totalProgress() < 1))) ? this._tTime % (this._dur + this._rDelay) : !this._ts ? this._tTime : _parentToChildTotalTime(parent.rawTime(wrapRepeats), this);
+		return !parent ? this._tTime : (wrapRepeats && (!this._ts || (this._repeat && this._time && this.totalProgress() < 1))) ? this._tTime % (this._dur + this._rDelay) : this._ts ? _parentToChildTotalTime(parent.rawTime(wrapRepeats), this) : this._tTime;
 	}
 
 	revert(config= _revertConfig) {
@@ -1424,7 +1426,7 @@ export class Animation {
 	}
 
 	eventCallback(type, callback, params) {
-		let vars = this.vars;
+		let {vars} = this;
 		if (arguments.length > 1) {
 			if (!callback) {
 				delete vars[type];
@@ -1705,13 +1707,13 @@ export class Timeline extends Animation {
 				}
 			}
 			this._onUpdate && !suppressEvents && _callback(this, "onUpdate", true);
-			if ((tTime === tDur && this._tTime >= this.totalDuration()) || (!tTime && prevTime)) if (prevStart === this._start || Math.abs(timeScale) !== Math.abs(this._ts)) if (!this._lock) { // remember, a child's callback may alter this timeline's playhead or timeScale which is why we need to add some of these checks.
-				(totalTime || !dur) && ((tTime === tDur && this._ts > 0) || (!tTime && this._ts < 0)) && _removeFromParent(this, 1); // don't remove if the timeline is reversed and the playhead isn't at 0, otherwise tl.progress(1).reverse() won't work. Only remove if the playhead is at the end and timeScale is positive, or if the playhead is at 0 and the timeScale is negative.
-				if (!suppressEvents && !(totalTime < 0 && !prevTime) && (tTime || prevTime || !tDur)) {
-					_callback(this, (tTime === tDur && totalTime >= 0 ? "onComplete" : "onReverseComplete"), true);
-					this._prom && !(tTime < tDur && this.timeScale() > 0) && this._prom();
-				}
-			}
+			if (((tTime === tDur && this._tTime >= this.totalDuration()) || (!tTime && prevTime)) && (prevStart === this._start || Math.abs(timeScale) !== Math.abs(this._ts)) && !this._lock) {
+         (totalTime || !dur) && ((tTime === tDur && this._ts > 0) || (!tTime && this._ts < 0)) && _removeFromParent(this, 1); // don't remove if the timeline is reversed and the playhead isn't at 0, otherwise tl.progress(1).reverse() won't work. Only remove if the playhead is at the end and timeScale is positive, or if the playhead is at 0 and the timeScale is negative.
+             				if (!suppressEvents && !(totalTime < 0 && !prevTime) && (tTime || prevTime || !tDur)) {
+             					_callback(this, (tTime === tDur && totalTime >= 0 ? "onComplete" : "onReverseComplete"), true);
+             					this._prom && !(tTime < tDur && this.timeScale() > 0) && this._prom();
+             				}
+   }
 		}
 		return this;
 	}
@@ -1990,12 +1992,12 @@ export class Timeline extends Animation {
 		if (_ticker.frame >= _nextGCFrame) {
 			_nextGCFrame += _config.autoSleep || 120;
 			let child = _globalTimeline._first;
-			if (!child || !child._ts) if (_config.autoSleep && _ticker._listeners.length < 2) {
-				while (child && !child._ts) {
-					child = child._next;
-				}
-				child || _ticker.sleep();
-			}
+			if ((!child || !child._ts) && (_config.autoSleep && _ticker._listeners.length < 2)) {
+         while (child && !child._ts) {
+      					child = child._next;
+      				}
+      				child || _ticker.sleep();
+   }
 		}
 	}
 
@@ -2073,7 +2075,7 @@ let _addComplexStringPropTween = function(target, prop, start, end, setter, stri
 	_addPropTween = function(target, prop, start, end, index, targets, modifier, stringFilter, funcParam, optional) {
 		_isFunction(end) && (end = end(index || 0, target, targets));
 		let currentValue = target[prop],
-			parsedStart = (start !== "get") ? start : !_isFunction(currentValue) ? currentValue : (funcParam ? target[(prop.indexOf("set") || !_isFunction(target["get" + prop.substr(3)])) ? prop : "get" + prop.substr(3)](funcParam) : target[prop]()),
+			parsedStart = (start !== "get") ? start : _isFunction(currentValue) ? funcParam ? target[(prop.indexOf("set") || !_isFunction(target["get" + prop.substr(3)])) ? prop : "get" + prop.substr(3)](funcParam) : target[prop]() : currentValue,
 			setter = !_isFunction(currentValue) ? _setterPlain : funcParam ? _setterFuncWithParam : _setterFunc,
 			pt;
 		if (_isString(end)) {
@@ -2163,37 +2165,32 @@ let _addComplexStringPropTween = function(target, prop, start, end, setter, stri
 				tween._startAt._dp = 0; // don't allow it to get put back into root timeline! Like when revert() is called and totalTime() gets set.
 				tween._startAt._sat = tween; // used in globalTime(). _sat stands for _startAtTween
 				(time < 0 && (_reverting || (!immediateRender && !autoRevert))) && tween._startAt.revert(_revertConfigNoKill); // rare edge case, like if a render is forced in the negative direction of a non-initted tween.
-				if (immediateRender) {
-					if (dur && time <= 0 && tTime <= 0) { // check tTime here because in the case of a yoyo tween whose playhead gets pushed to the end like tween.progress(1), we should allow it through so that the onComplete gets fired properly.
-						time && (tween._zTime = time);
-						return; //we skip initialization here so that overwriting doesn't occur until the tween actually begins. Otherwise, if you create several immediateRender:true tweens of the same target/properties to drop into a Timeline, the last one created would overwrite the first ones because they didn't get placed into the timeline yet before the first render occurs and kicks in overwriting.
-					}
-				}
-			} else if (runBackwards && dur) {
-				//from() tweens must be handled uniquely: their beginning values must be rendered but we don't want overwriting to occur yet (when time is still 0). Wait until the tween actually begins before doing all the routines like overwriting. At that time, we should render at the END of the tween to ensure that things initialize correctly (remember, from() tweens go backwards)
-				if (!prevStartAt) {
-					time && (immediateRender = false); //in rare cases (like if a from() tween runs and then is invalidate()-ed), immediateRender could be true but the initial forced-render gets skipped, so there's no need to force the render in this context when the _time is greater than 0
-					p = _setDefaults({
-						overwrite: false,
-						data: "isFromStart", //we tag the tween with as "isFromStart" so that if [inside a plugin] we need to only do something at the very END of a tween, we have a way of identifying this tween as merely the one that's setting the beginning values for a "from()" tween. For example, clearProps in CSSPlugin should only get applied at the very END of a tween and without this tag, from(...{height:100, clearProps:"height", delay:1}) would wipe the height at the beginning of the tween and after 1 second, it'd kick back in.
-						lazy: immediateRender && !prevStartAt && _isNotFalse(lazy),
-						immediateRender: immediateRender, //zero-duration tweens render immediately by default, but if we're not specifically instructed to render this tween immediately, we should skip this and merely _init() to record the starting values (rendering them immediately would push them to completion which is wasteful in that case - we'd have to render(-1) immediately after)
-						stagger: 0,
-						parent: parent //ensures that nested tweens that had a stagger are handled properly, like gsap.from(".class", {y: gsap.utils.wrap([-100,100]), stagger: 0.5})
-					}, cleanVars);
-					harnessVars && (p[harness.prop] = harnessVars); // in case someone does something like .from(..., {css:{}})
-					_removeFromParent(tween._startAt = Tween.set(targets, p));
-					tween._startAt._dp = 0; // don't allow it to get put back into root timeline!
-					tween._startAt._sat = tween; // used in globalTime()
-					(time < 0) && (_reverting ? tween._startAt.revert(_revertConfigNoKill) : tween._startAt.render(-1, true));
-					tween._zTime = time;
-					if (!immediateRender) {
-						_initTween(tween._startAt, _tinyNum, _tinyNum); //ensures that the initial values are recorded
-					} else if (!time) {
-						return;
-					}
-				}
-			}
+				if (immediateRender && (dur && time <= 0 && tTime <= 0)) {
+          time && (tween._zTime = time);
+    						return;
+    }
+			} else if (runBackwards && dur && !prevStartAt) {
+                time && (immediateRender = false); //in rare cases (like if a from() tween runs and then is invalidate()-ed), immediateRender could be true but the initial forced-render gets skipped, so there's no need to force the render in this context when the _time is greater than 0
+          					p = _setDefaults({
+          						overwrite: false,
+          						data: "isFromStart", //we tag the tween with as "isFromStart" so that if [inside a plugin] we need to only do something at the very END of a tween, we have a way of identifying this tween as merely the one that's setting the beginning values for a "from()" tween. For example, clearProps in CSSPlugin should only get applied at the very END of a tween and without this tag, from(...{height:100, clearProps:"height", delay:1}) would wipe the height at the beginning of the tween and after 1 second, it'd kick back in.
+          						lazy: immediateRender && !prevStartAt && _isNotFalse(lazy),
+          						immediateRender: immediateRender, //zero-duration tweens render immediately by default, but if we're not specifically instructed to render this tween immediately, we should skip this and merely _init() to record the starting values (rendering them immediately would push them to completion which is wasteful in that case - we'd have to render(-1) immediately after)
+          						stagger: 0,
+          						parent: parent //ensures that nested tweens that had a stagger are handled properly, like gsap.from(".class", {y: gsap.utils.wrap([-100,100]), stagger: 0.5})
+          					}, cleanVars);
+          					harnessVars && (p[harness.prop] = harnessVars); // in case someone does something like .from(..., {css:{}})
+          					_removeFromParent(tween._startAt = Tween.set(targets, p));
+          					tween._startAt._dp = 0; // don't allow it to get put back into root timeline!
+          					tween._startAt._sat = tween; // used in globalTime()
+          					(time < 0) && (_reverting ? tween._startAt.revert(_revertConfigNoKill) : tween._startAt.render(-1, true));
+          					tween._zTime = time;
+          					if (!immediateRender) {
+          						_initTween(tween._startAt, _tinyNum, _tinyNum); //ensures that the initial values are recorded
+          					} else if (!time) {
+          						return;
+          					}
+          }
 			tween._pt = tween._ptCache = 0;
 			lazy = (dur && _isNotFalse(lazy)) || (lazy && !dur);
 			for (i = 0; i < targets.length; i++) {
@@ -3040,7 +3037,7 @@ const _gsap = {
 		let getter = _getCache(target || {}).get,
 			format = unit ? _passThrough : _numericIfPossible;
 		unit === "native" && (unit = "");
-		return !target ? target : !property ? (property, unit, uncache) => format(((_plugins[property] && _plugins[property].get) || getter)(target, property, unit, uncache)) : format(((_plugins[property] && _plugins[property].get) || getter)(target, property, unit, uncache));
+		return !target ? target : property ? format(((_plugins[property] && _plugins[property].get) || getter)(target, property, unit, uncache)) : (property, unit, uncache) => format(((_plugins[property] && _plugins[property].get) || getter)(target, property, unit, uncache));
 	},
 	quickSetter(target, property, unit) {
 		target = toArray(target);

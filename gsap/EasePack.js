@@ -144,8 +144,8 @@ var gsap,
     if (clamp) {
       if (y > 1) {
         y = 1;
-      } else if (y < 0) {
-        y = 0;
+      } else {
+        y = Math.max(y, 0)
       }
     }
 

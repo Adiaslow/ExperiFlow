@@ -61,8 +61,8 @@ let _svgPathExp = /[achlmqstvz]|(-?\d*\.?\d*(?:e[\-+]?\d+)?)[0-9]/ig,
 	_copyMetaData = (source, copy) => {
 		copy.totalLength = source.totalLength;
 		if (source.samples) { //segment
-			copy.samples = source.samples.slice(0);
-			copy.lookup = source.lookup.slice(0);
+			copy.samples = source.samples.slice();
+			copy.lookup = source.lookup.slice();
 			copy.minLength = source.minLength;
 			copy.resolution = source.resolution;
 		} else if (source.totalPoints) { //rawPath
@@ -111,7 +111,7 @@ export function copyRawPath(rawPath) {
 	let a = [],
 		i = 0;
 	for (; i < rawPath.length; i++) {
-		a[i] = _copyMetaData(rawPath[i], rawPath[i].slice(0));
+		a[i] = _copyMetaData(rawPath[i], rawPath[i].slice());
 	}
 	return _copyMetaData(rawPath, a);
 }
@@ -229,7 +229,7 @@ export function convertToPath(element, swap) {
 
 //returns the rotation (in degrees) at a particular progress on a rawPath (the slope of the tangent)
 export function getRotationAtProgress(rawPath, progress) {
-	let d = getProgressData(rawPath, progress >= 1 ? 1 - 1e-9 : progress ? progress : 1e-9);
+	let d = getProgressData(rawPath, progress >= 1 ? 1 - 1e-9 : progress || 1e-9);
 	return getRotationAtBezierT(d.segment, d.i, d.t);
 }
 
@@ -555,7 +555,7 @@ export function getPositionOnPath(rawPath, progress, includeAngle, point) {
 	result.x = _round((t * t * (segment[i + 6] - a) + 3 * inv * (t * (segment[i + 4] - a) + inv * (segment[i + 2] - a))) * t + a);
 	result.y = _round((t * t * (segment[i + 7] - (a = segment[i+1])) + 3 * inv * (t * (segment[i + 5] - a) + inv * (segment[i + 3] - a))) * t + a);
 	if (includeAngle) {
-		result.angle = segment.totalLength ? getRotationAtBezierT(segment, i, t >= 1 ? 1 - 1e-9 : t ? t : 1e-9) : segment.angle || 0;
+		result.angle = segment.totalLength ? getRotationAtBezierT(segment, i, t >= 1 ? 1 - 1e-9 : t || 1e-9) : segment.angle || 0;
 	}
 	return result;
 }
@@ -608,9 +608,7 @@ function arcToSegment(lastX, lastY, rx, ry, angle, largeArcFlag, sweepFlag, x, y
 	let rx_sq = rx * rx,
 		ry_sq = ry * ry,
 		sq = ((rx_sq * ry_sq) - (rx_sq * y1_sq) - (ry_sq * x1_sq)) / ((rx_sq * y1_sq) + (ry_sq * x1_sq));
-	if (sq < 0) {
-		sq = 0;
-	}
+	sq = Math.max(sq, 0)
 	let coef = ((largeArcFlag === sweepFlag) ? -1 : 1) * _sqrt(sq),
 		cx1 = coef * ((rx * y1) / ry),
 		cy1 = coef * -((ry * x1) / rx),
@@ -964,7 +962,7 @@ export function pointsToSegment(points, curviness) {
 		segment.push(x, y, x, y, x, y);
 	} else if (closed) {
 		segment.splice(0, 6);
-		segment.length = segment.length - 6;
+		segment.length -= 6;
 	}
 	return segment;
 }

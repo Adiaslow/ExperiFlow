@@ -101,7 +101,9 @@ export class FlowChart {
     });
 
     document.addEventListener("mousemove", (e) => {
-      if (!this.isPanning) return;
+      if (!this.isPanning) {
+        return;
+      }
 
       this.offset.x = e.clientX - startX;
       this.offset.y = e.clientY - startY;
@@ -317,7 +319,9 @@ export class FlowChart {
 
   deleteNode(nodeId) {
     const node = this.nodes.get(nodeId);
-    if (!node) return;
+    if (!node) {
+      return;
+    }
 
     // Remove connected edges
     Array.from(this.edges.entries()).forEach(([edgeId, edge]) => {
@@ -478,7 +482,9 @@ export class FlowChart {
     let totalForceY = 0;
 
     for (const [id, node] of this.nodes.entries()) {
-      if (id === nodeId) continue;
+      if (id === nodeId) {
+        continue;
+      }
 
       const dx = currentPosition.x - node.position.x;
       const dy = currentPosition.y - node.position.y;
@@ -501,12 +507,16 @@ export class FlowChart {
   }
 
   addEdge(parentNode, childNode) {
-    if (!parentNode || !childNode) return;
+    if (!parentNode || !childNode) {
+      return;
+    }
 
     const edgeId = `${parentNode.id}-${childNode.id}`;
 
     // Check if edge already exists
-    if (this.edges.has(edgeId)) return;
+    if (this.edges.has(edgeId)) {
+      return;
+    }
 
     const edge = new GraphEdge(parentNode, childNode);
     this.canvas.appendChild(edge.element);
@@ -565,10 +575,14 @@ export class FlowChart {
 
     // Find all nodes that need to be repositioned
     const findAffectedNodes = (position, depth = 0) => {
-      if (depth > 10) return; // Prevent infinite recursion
+      if (depth > 10) {
+        return;
+      } // Prevent infinite recursion
 
       for (const [id, node] of this.nodes.entries()) {
-        if (affectedNodes.has(id)) continue;
+        if (affectedNodes.has(id)) {
+          continue;
+        }
 
         const dx = position.x - node.position.x;
         const dy = position.y - node.position.y;
@@ -651,7 +665,9 @@ export class FlowChart {
 
       for (const nodeA of nodes) {
         for (const nodeB of this.nodes.values()) {
-          if (nodeA.id === nodeB.id) continue;
+          if (nodeA.id === nodeB.id) {
+            continue;
+          }
 
           const dx = nodeA.position.x - nodeB.position.x;
           const dy = nodeA.position.y - nodeB.position.y;
@@ -683,7 +699,9 @@ export class FlowChart {
       this.minimap.update();
 
       // If adjustments are small enough, stop optimizing
-      if (maxAdjustment < 0.5) break;
+      if (maxAdjustment < 0.5) {
+        break;
+      }
     }
   }
 
@@ -694,7 +712,9 @@ export class FlowChart {
   }
 
   updateTransform() {
-    if (!this.canvas) return;
+    if (!this.canvas) {
+      return;
+    }
 
     this.canvas.style.transform = `translate(${this.offset.x}px, ${this.offset.y}px) scale(${this.scale})`;
 
@@ -723,7 +743,9 @@ export class FlowChart {
       document.getElementById("projectTitle").value = this.projectTitle;
 
       // Restore view state if it exists
-      if (projectData.scale) this.scale = projectData.scale;
+      if (projectData.scale) {
+        this.scale = projectData.scale;
+      }
       if (projectData.offset) {
         this.offset = {
           x: projectData.offset.x || 150,
@@ -792,7 +814,9 @@ export class FlowChart {
   }
 
   centerView() {
-    if (this.nodes.size === 0) return;
+    if (this.nodes.size === 0) {
+      return;
+    }
 
     const bounds = this.getBounds();
     const containerRect = this.canvas.parentElement.getBoundingClientRect();
@@ -843,7 +867,9 @@ export class FlowChart {
       document.getElementById("projectTitle").value = this.projectTitle;
 
       // Restore view state if it exists
-      if (projectData.scale) this.scale = projectData.scale;
+      if (projectData.scale) {
+        this.scale = projectData.scale;
+      }
       if (projectData.offset) {
         this.offset = {
           x: projectData.offset.x || 150,
@@ -927,7 +953,9 @@ export class FlowChart {
     const visited = new Set();
 
     const visit = (nodeData) => {
-      if (visited.has(nodeData.id)) return;
+      if (visited.has(nodeData.id)) {
+        return;
+      }
       visited.add(nodeData.id);
 
       // First process parent if it exists
@@ -949,7 +977,9 @@ export class FlowChart {
   }
 
   arrangeHierarchically() {
-    if (this.layoutMode !== 'hierarchical') return;
+    if (this.layoutMode !== 'hierarchical') {
+      return;
+    }
 
     // Constants for layout
     const LEVEL_HEIGHT = 300;  // Vertical spacing between levels
@@ -961,7 +991,9 @@ export class FlowChart {
       .filter(node => !node.parentId)
       .map(node => node.id);
 
-    if (rootNodes.length === 0) return;
+    if (rootNodes.length === 0) {
+      return;
+    }
 
     // First pass: Calculate subtree sizes
     const getSubtreeWidth = (nodeId) => {
@@ -1064,7 +1096,9 @@ export class FlowChart {
 
       // Update positions of all nodes except root nodes
       this.nodes.forEach(node => {
-        if (!node.parentId) return; // Skip root nodes
+        if (!node.parentId) {
+          return;
+        } // Skip root nodes
 
         const start = startPositions.get(node.id);
         const target = targetPositions.get(node.id);

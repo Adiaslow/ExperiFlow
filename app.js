@@ -191,7 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Load Project
   document.getElementById("loadProject").addEventListener("change", (e) => {
     const file = e.target.files[0];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
 
     // Validate file type
     if (!file.name.toLowerCase().endsWith('.json')) {

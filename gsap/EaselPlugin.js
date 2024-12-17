@@ -87,8 +87,8 @@ var gsap,
     e.redMultiplier = e.greenMultiplier = e.blueMultiplier = 1 - a;
   } else {
     for (p in v) {
-      if (p !== "exposure") if (p !== "brightness") {
-        e[p] = +v[p];
+      if (p !== "exposure" && p !== "brightness") {
+            e[p] = +v[p];
       }
     }
   }

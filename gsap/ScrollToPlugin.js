@@ -203,14 +203,9 @@ export var ScrollToPlugin = {
     xDif = x - xPrev;
     threshold = _config.autoKillThreshold;
 
-    if (data.x < 0) {
-      //can't scroll to a position less than 0! Might happen if someone uses a Back.easeOut or Elastic.easeOut when scrolling back to the top of the page (for example)
-      data.x = 0;
-    }
+    data.x = Math.max(data.x, 0)
 
-    if (data.y < 0) {
-      data.y = 0;
-    }
+    data.y = Math.max(data.y, 0)
 
     if (autoKill) {
       //note: iOS has a bug that throws off the scroll by several pixels, so we need to check if it's within 7 pixels of the previous one that we set instead of just looking for an exact match.
@@ -229,7 +224,7 @@ export var ScrollToPlugin = {
     }
 
     if (isWin) {
-      _window.scrollTo(!data.skipX ? data.x : x, !data.skipY ? data.y : y);
+      _window.scrollTo(data.skipX ? x : data.x, data.skipY ? y : data.y);
     } else {
       data.skipY || (target.scrollTop = data.y);
       data.skipX || (target.scrollLeft = data.x);

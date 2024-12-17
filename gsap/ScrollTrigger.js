@@ -218,7 +218,7 @@ _pointerDownHandler = function _pointerDownHandler() {
 },
     _snapDirectional = function _snapDirectional(snapIncrementOrArray) {
   var snap = gsap.utils.snap(snapIncrementOrArray),
-      a = Array.isArray(snapIncrementOrArray) && snapIncrementOrArray.slice(0).sort(function (a, b) {
+      a = Array.isArray(snapIncrementOrArray) && snapIncrementOrArray.slice().sort(function (a, b) {
     return a - b;
   });
   return a ? function (value, direction, threshold) {
@@ -499,7 +499,7 @@ _revertRecorded = function _revertRecorded(media) {
     }
   });
 
-  _triggers.slice(0).forEach(function (t) {
+  _triggers.slice().forEach(function (t) {
     return t.refresh();
   }); // don't loop with _i because during a refresh() someone could call ScrollTrigger.update() which would iterate through _i resulting in a skip.
 
@@ -1608,7 +1608,7 @@ export var ScrollTrigger = /*#__PURE__*/function () {
       _endAnimation(self.callbackAnimation);
 
       if (animation) {
-        scrubTween ? scrubTween.progress(1) : !animation.paused() ? _endAnimation(animation, animation.reversed()) : isToggle || _endAnimation(animation, self.direction < 0, 1);
+        scrubTween ? scrubTween.progress(1) : animation.paused() ? isToggle || _endAnimation(animation, self.direction < 0, 1) : _endAnimation(animation, animation.reversed());
       }
     };
 
@@ -2178,7 +2178,7 @@ export var ScrollTrigger = /*#__PURE__*/function () {
   };
 
   ScrollTrigger.killAll = function killAll(allowListeners) {
-    _triggers.slice(0).forEach(function (t) {
+    _triggers.slice().forEach(function (t) {
       return t.vars.id !== "ScrollSmoother" && t.kill();
     });
 

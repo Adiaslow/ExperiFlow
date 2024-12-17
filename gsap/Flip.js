@@ -561,7 +561,7 @@ _makeAbsolute = function _makeAbsolute(elState, fallbackNode, ignoreBatch) {
 
 
   for (p in toState.idLookup) {
-    toNode = !toState.alt[p] ? toState.idLookup[p] : _getChangingElState(toState, fromState, p);
+    toNode = toState.alt[p] ? _getChangingElState(toState, fromState, p) : toState.idLookup[p];
     el = toNode.element;
     fromNode = fromState.idLookup[p];
     fromState.alt[p] && el === fromNode.element && (fromState.alt[p].isVisible || !toNode.isVisible) && (fromNode = fromState.alt[p]);
@@ -916,7 +916,7 @@ var FlipState = /*#__PURE__*/function () {
   };
 
   _proto.fit = function fit(state, scale, nested) {
-    var elStatesInOrder = _orderByDOMDepth(this.elementStates.slice(0), false, true),
+    var elStatesInOrder = _orderByDOMDepth(this.elementStates.slice(), false, true),
         toElStates = (state || this).idLookup,
         i = 0,
         fromNode,
@@ -999,7 +999,7 @@ var FlipState = /*#__PURE__*/function () {
     for (p in l1) {
       s1Alt = a1[p];
       s2Alt = a2[p];
-      s1 = !s1Alt ? l1[p] : _getChangingElState(state, this, p);
+      s1 = s1Alt ? _getChangingElState(state, this, p) : l1[p];
       el = s1.element;
       s2 = l2[p];
 
@@ -1020,7 +1020,7 @@ var FlipState = /*#__PURE__*/function () {
         placeIfDoesNotExist(s1Alt && s1Alt.element === s2Alt.element ? s1Alt : c1, s2Alt, s2Alt.element);
         s1Alt && placeIfDoesNotExist(s1Alt, s2Alt.element === s1Alt.element ? s2Alt : s2, s1Alt.element);
       } else {
-        !s2 ? enter.push(el) : !s2.isDifferent(s1) ? unchanged.push(el) : place(s1, s2, el);
+        !s2 ? enter.push(el) : s2.isDifferent(s1) ? place(s1, s2, el) : unchanged.push(el);
         s1Alt && placeIfDoesNotExist(s1Alt, s2, s1Alt.element);
       }
     }
@@ -1081,7 +1081,7 @@ var FlipState = /*#__PURE__*/function () {
   };
 
   _proto.makeAbsolute = function makeAbsolute() {
-    return _orderByDOMDepth(this.elementStates.slice(0), true, true).map(_makeAbsolute);
+    return _orderByDOMDepth(this.elementStates.slice(), true, true).map(_makeAbsolute);
   };
 
   return FlipState;
@@ -1265,7 +1265,7 @@ var FlipBatch = /*#__PURE__*/function () {
     });
 
     endTime = tl.duration();
-    finalStates = this._final.slice(0);
+    finalStates = this._final.slice();
     tl.add(function () {
       if (endTime <= tl.time()) {
         // only call if moving forward in the timeline (in case it's nested in a timeline that gets reversed)

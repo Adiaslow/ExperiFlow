@@ -667,10 +667,8 @@ ScrollProxy = function ScrollProxy(element, vars) {
       offsetTop = 0;
     }
 
-    if (offsetTop || oldOffset) {
-      if (!this._skip) {
-        style[_transformProp] = transformStart + -offsetLeft + "px," + -offsetTop + transformEnd;
-      }
+    if ((offsetTop || oldOffset) && !this._skip) {
+          style[_transformProp] = transformStart + -offsetLeft + "px," + -offsetTop + transformEnd;
     }
 
     element.scrollTop = value | 0;
@@ -1089,45 +1087,45 @@ export var Draggable = /*#__PURE__*/function (_EventDispatcher) {
             y = self.y;
 
         if (rotationMode) {
-          self.deltaX = x - parseFloat(gsCache.rotation);
-          self.rotation = x;
-          gsCache.rotation = x + "deg";
-          gsCache.renderTransform(1, gsCache);
-        } else {
-          if (scrollProxy) {
-            if (allowY) {
-              self.deltaY = y - scrollProxy.top();
-              scrollProxy.top(y);
-            }
-
-            if (allowX) {
-              self.deltaX = x - scrollProxy.left();
-              scrollProxy.left(x);
-            }
-          } else if (xyMode) {
-            if (allowY) {
-              self.deltaY = y - parseFloat(gsCache.y);
-              gsCache.y = y + "px";
-            }
-
-            if (allowX) {
-              self.deltaX = x - parseFloat(gsCache.x);
-              gsCache.x = x + "px";
-            }
-
-            gsCache.renderTransform(1, gsCache);
-          } else {
-            if (allowY) {
-              self.deltaY = y - parseFloat(target.style.top || 0);
-              target.style.top = y + "px";
-            }
-
-            if (allowX) {
-              self.deltaX = x - parseFloat(target.style.left || 0);
-              target.style.left = x + "px";
-            }
-          }
-        }
+                  self.deltaX = x - parseFloat(gsCache.rotation);
+                  self.rotation = x;
+                  gsCache.rotation = x + "deg";
+                  gsCache.renderTransform(1, gsCache);
+                }
+        else if (scrollProxy) {
+                    if (allowY) {
+                      self.deltaY = y - scrollProxy.top();
+                      scrollProxy.top(y);
+                    }
+        
+                    if (allowX) {
+                      self.deltaX = x - scrollProxy.left();
+                      scrollProxy.left(x);
+                    }
+                  }
+        else if (xyMode) {
+                    if (allowY) {
+                      self.deltaY = y - parseFloat(gsCache.y);
+                      gsCache.y = y + "px";
+                    }
+        
+                    if (allowX) {
+                      self.deltaX = x - parseFloat(gsCache.x);
+                      gsCache.x = x + "px";
+                    }
+        
+                    gsCache.renderTransform(1, gsCache);
+                  } else {
+                    if (allowY) {
+                      self.deltaY = y - parseFloat(target.style.top || 0);
+                      target.style.top = y + "px";
+                    }
+        
+                    if (allowX) {
+                      self.deltaX = x - parseFloat(target.style.left || 0);
+                      target.style.left = x + "px";
+                    }
+                  }
 
         if (hasDragCallback && !suppressEvents && !isDispatching) {
           isDispatching = true; //in case onDrag has an update() call (avoid endless loop)
@@ -1239,7 +1237,7 @@ export var Draggable = /*#__PURE__*/function (_EventDispatcher) {
 
       if (_isFunction(snap)) {
         return function (n) {
-          var edgeTolerance = !self.isPressed ? 1 : 1 - self.edgeResistance; //if we're tweening, disable the edgeTolerance because it's already factored into the tweening values (we don't want to apply it multiple times)
+          var edgeTolerance = self.isPressed ? 1 - self.edgeResistance : 1; //if we're tweening, disable the edgeTolerance because it's already factored into the tweening values (we don't want to apply it multiple times)
 
           return snap.call(self, (n > max ? max + (n - max) * edgeTolerance : n < min ? min + (n - min) * edgeTolerance : n) * factor) * factor;
         };
@@ -1282,7 +1280,7 @@ export var Draggable = /*#__PURE__*/function (_EventDispatcher) {
 
       if (_isFunction(snap)) {
         return function (point) {
-          var edgeTolerance = !self.isPressed ? 1 : 1 - self.edgeResistance,
+          var edgeTolerance = self.isPressed ? 1 - self.edgeResistance : 1,
               x = point.x,
               y = point.y,
               result,
@@ -1403,21 +1401,21 @@ export var Draggable = /*#__PURE__*/function (_EventDispatcher) {
         snapIsRaw = _isArray(snap) || _isFunction(snap);
 
         if (rotationMode) {
-          snapX = buildSnapFunc(snapIsRaw ? snap : snap.rotation, minX, maxX, 1);
-          snapY = null;
-        } else {
-          if (snap.points) {
-            snapXY = buildPointSnapFunc(snapIsRaw ? snap : snap.points, minX, maxX, minY, maxY, snap.radius, scrollProxy ? -1 : 1);
-          } else {
-            if (allowX) {
-              snapX = buildSnapFunc(snapIsRaw ? snap : snap.x || snap.left || snap.scrollLeft, minX, maxX, scrollProxy ? -1 : 1);
-            }
-
-            if (allowY) {
-              snapY = buildSnapFunc(snapIsRaw ? snap : snap.y || snap.top || snap.scrollTop, minY, maxY, scrollProxy ? -1 : 1);
-            }
-          }
-        }
+                  snapX = buildSnapFunc(snapIsRaw ? snap : snap.rotation, minX, maxX, 1);
+                  snapY = null;
+                }
+        else if (snap.points) {
+                    snapXY = buildPointSnapFunc(snapIsRaw ? snap : snap.points, minX, maxX, minY, maxY, snap.radius, scrollProxy ? -1 : 1);
+                  }
+        else {
+                    if (allowX) {
+                      snapX = buildSnapFunc(snapIsRaw ? snap : snap.x || snap.left || snap.scrollLeft, minX, maxX, scrollProxy ? -1 : 1);
+                    }
+        
+                    if (allowY) {
+                      snapY = buildSnapFunc(snapIsRaw ? snap : snap.y || snap.top || snap.scrollTop, minY, maxY, scrollProxy ? -1 : 1);
+                    }
+                  }
       }
     },
         onThrowComplete = function onThrowComplete() {
@@ -2198,10 +2196,8 @@ export var Draggable = /*#__PURE__*/function (_EventDispatcher) {
         return;
       }
 
-      if (self.isPressed || recentlyDragged || recentlyClicked) {
-        if (!trusted || !e.detail || !recentlyClicked || defaultPrevented) {
-          _preventDefault(e);
-        }
+      if ((self.isPressed || recentlyDragged || recentlyClicked) && (!trusted || !e.detail || !recentlyClicked || defaultPrevented)) {
+            _preventDefault(e);
       }
 
       if (!recentlyClicked && !recentlyDragged && !dragged) {
@@ -2323,14 +2319,14 @@ export var Draggable = /*#__PURE__*/function (_EventDispatcher) {
 
         if (x > maxX) {
           x = maxX;
-        } else if (x < minX) {
-          x = minX;
+        } else {
+          x = Math.max(x, minX)
         }
 
         if (y > maxY) {
           y = maxY;
-        } else if (y < minY) {
-          y = minY;
+        } else {
+          y = Math.max(y, minY)
         }
 
         if (self.x !== x || self.y !== y) {

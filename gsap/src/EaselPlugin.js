@@ -55,9 +55,9 @@ let gsap, _coreInitted, _win, _createJS, _ColorFilter, _ColorMatrixFilter,
 			e.redMultiplier = e.greenMultiplier = e.blueMultiplier = 1 - a;
 		} else {
 			for (p in v) {
-				if (p !== "exposure") if (p !== "brightness") {
-					e[p] = +v[p];
-				}
+				if (p !== "exposure" && p !== "brightness") {
+          e[p] = +v[p];
+    }
 			}
 		}
 		if (v.exposure != null) {

@@ -160,7 +160,7 @@ let gsap, _win, _doc, _docElement, _body, _tempDiv, _placeholderDiv, _coreInitte
 		}
 	},
 	_setStyle = (element, property, value) => {
-		let style = element.style;
+		let {style} = element;
 		if (!style) {
 			return;
 		}
@@ -440,11 +440,9 @@ let gsap, _win, _doc, _docElement, _body, _tempDiv, _placeholderDiv, _coreInitte
 			} else {
 				offsetTop = 0;
 			}
-			if (offsetTop || oldOffset) {
-				if (!this._skip) {
-					style[_transformProp] = transformStart + -offsetLeft + "px," + -offsetTop + transformEnd;
-				}
-			}
+			if ((offsetTop || oldOffset) && !this._skip) {
+         style[_transformProp] = transformStart + -offsetLeft + "px," + -offsetTop + transformEnd;
+   }
 			element.scrollTop = value | 0;
 			prevTop = element.scrollTop;
 		};
@@ -756,41 +754,41 @@ export class Draggable extends EventDispatcher {
 				if (dirty) {
 					let {x, y} = self;
 					if (rotationMode) {
-						self.deltaX = x - parseFloat(gsCache.rotation);
-						self.rotation = x;
-						gsCache.rotation = x + "deg";
-						gsCache.renderTransform(1, gsCache);
-					} else {
-						if (scrollProxy) {
-							if (allowY) {
-								self.deltaY = y - scrollProxy.top();
-								scrollProxy.top(y);
-							}
-							if (allowX) {
-								self.deltaX = x - scrollProxy.left();
-								scrollProxy.left(x);
-							}
-						} else if (xyMode) {
-							if (allowY) {
-								self.deltaY = y - parseFloat(gsCache.y);
-								gsCache.y = y + "px";
-							}
-							if (allowX) {
-								self.deltaX = x - parseFloat(gsCache.x);
-								gsCache.x = x + "px";
-							}
-							gsCache.renderTransform(1, gsCache);
-						} else {
-							if (allowY) {
-								self.deltaY = y - parseFloat(target.style.top || 0);
-								target.style.top = y + "px";
-							}
-							if (allowX) {
-								self.deltaX = x - parseFloat(target.style.left || 0);
-								target.style.left = x + "px";
-							}
-						}
-					}
+     						self.deltaX = x - parseFloat(gsCache.rotation);
+     						self.rotation = x;
+     						gsCache.rotation = x + "deg";
+     						gsCache.renderTransform(1, gsCache);
+     					}
+     else if (scrollProxy) {
+     							if (allowY) {
+     								self.deltaY = y - scrollProxy.top();
+     								scrollProxy.top(y);
+     							}
+     							if (allowX) {
+     								self.deltaX = x - scrollProxy.left();
+     								scrollProxy.left(x);
+     							}
+     						}
+     else if (xyMode) {
+     							if (allowY) {
+     								self.deltaY = y - parseFloat(gsCache.y);
+     								gsCache.y = y + "px";
+     							}
+     							if (allowX) {
+     								self.deltaX = x - parseFloat(gsCache.x);
+     								gsCache.x = x + "px";
+     							}
+     							gsCache.renderTransform(1, gsCache);
+     						} else {
+     							if (allowY) {
+     								self.deltaY = y - parseFloat(target.style.top || 0);
+     								target.style.top = y + "px";
+     							}
+     							if (allowX) {
+     								self.deltaX = x - parseFloat(target.style.left || 0);
+     								target.style.left = x + "px";
+     							}
+     						}
 					if (hasDragCallback && !suppressEvents && !isDispatching) {
 						isDispatching = true; //in case onDrag has an update() call (avoid endless loop)
 						if (_dispatchEvent(self, "drag", "onDrag") === false) {
@@ -877,7 +875,7 @@ export class Draggable extends EventDispatcher {
 				}
 				if (_isFunction(snap)) {
 					return n => {
-						let edgeTolerance = !self.isPressed ? 1 : 1 - self.edgeResistance; //if we're tweening, disable the edgeTolerance because it's already factored into the tweening values (we don't want to apply it multiple times)
+						let edgeTolerance = self.isPressed ? 1 - self.edgeResistance : 1; //if we're tweening, disable the edgeTolerance because it's already factored into the tweening values (we don't want to apply it multiple times)
 						return snap.call(self, (n > max ? max + (n - max) * edgeTolerance : (n < min) ? min + (n - min) * edgeTolerance : n) * factor) * factor;
 					};
 				}
@@ -908,7 +906,7 @@ export class Draggable extends EventDispatcher {
 				radius = (radius && radius < _bigNum) ? radius * radius : _bigNum; //so we don't have to Math.sqrt() in the functions. Performance optimization.
 				if (_isFunction(snap)) {
 					return point => {
-						let edgeTolerance = !self.isPressed ? 1 : 1 - self.edgeResistance,
+						let edgeTolerance = self.isPressed ? 1 - self.edgeResistance : 1,
 							x = point.x,
 							y = point.y,
 							result, dx, dy; //if we're tweening, disable the edgeTolerance because it's already factored into the tweening values (we don't want to apply it multiple times)
@@ -1004,20 +1002,20 @@ export class Draggable extends EventDispatcher {
 					snap = (vars.liveSnap === true) ? (vars.snap || {}) : vars.liveSnap;
 					snapIsRaw = (_isArray(snap) || _isFunction(snap));
 					if (rotationMode) {
-						snapX = buildSnapFunc((snapIsRaw ? snap : snap.rotation), minX, maxX, 1);
-						snapY = null;
-					} else {
-						if (snap.points) {
-							snapXY = buildPointSnapFunc((snapIsRaw ? snap : snap.points), minX, maxX, minY, maxY, snap.radius, scrollProxy ? -1 : 1);
-						} else {
-							if (allowX) {
-								snapX = buildSnapFunc((snapIsRaw ? snap : snap.x || snap.left || snap.scrollLeft), minX, maxX, scrollProxy ? -1 : 1);
-							}
-							if (allowY) {
-								snapY = buildSnapFunc((snapIsRaw ? snap : snap.y || snap.top || snap.scrollTop), minY, maxY, scrollProxy ? -1 : 1);
-							}
-						}
-					}
+     						snapX = buildSnapFunc((snapIsRaw ? snap : snap.rotation), minX, maxX, 1);
+     						snapY = null;
+     					}
+     else if (snap.points) {
+     							snapXY = buildPointSnapFunc((snapIsRaw ? snap : snap.points), minX, maxX, minY, maxY, snap.radius, scrollProxy ? -1 : 1);
+     						}
+     else {
+     							if (allowX) {
+     								snapX = buildSnapFunc((snapIsRaw ? snap : snap.x || snap.left || snap.scrollLeft), minX, maxX, scrollProxy ? -1 : 1);
+     							}
+     							if (allowY) {
+     								snapY = buildSnapFunc((snapIsRaw ? snap : snap.y || snap.top || snap.scrollTop), minY, maxY, scrollProxy ? -1 : 1);
+     							}
+     						}
 				}
 			},
 
@@ -1596,11 +1594,9 @@ export class Draggable extends EventDispatcher {
 					clickDispatch = clickTime;
 					return;
 				}
-				if (self.isPressed || recentlyDragged || recentlyClicked) {
-					if (!trusted || !e.detail || !recentlyClicked || defaultPrevented) {
-						_preventDefault(e);
-					}
-				}
+				if ((self.isPressed || recentlyDragged || recentlyClicked) && (!trusted || !e.detail || !recentlyClicked || defaultPrevented)) {
+          _preventDefault(e);
+    }
 				if (!recentlyClicked && !recentlyDragged && !dragged) { // for script-triggered event dispatches, like element.click()
 					e && e.target && (self.pointerEvent = e);
 					_dispatchEvent(self, "click", "onClick");
@@ -1673,15 +1669,15 @@ export class Draggable extends EventDispatcher {
 				x = self.x;
 				y = self.y;
 				if (x > maxX) {
-					x = maxX;
-				} else if (x < minX) {
-					x = minX;
-				}
+      x = maxX;
+    } else {
+      x = Math.max(x, minX)
+    }
 				if (y > maxY) {
-					y = maxY;
-				} else if (y < minY) {
-					y = minY;
-				}
+      y = maxY;
+    } else {
+      y = Math.max(y, minY)
+    }
 				if (self.x !== x || self.y !== y) {
 					forceZeroVelocity = true;
 					self.x = self.endX = x;

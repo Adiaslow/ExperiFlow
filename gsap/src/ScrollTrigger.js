@@ -71,7 +71,7 @@ let gsap, _coreInitted, _win, _doc, _docEl, _body, _root, _resizeDelay, _toArray
 	_px = "px",
 	_getComputedStyle = element => _win.getComputedStyle(element),
 	_makePositionable = element => { // if the element already has position: absolute or fixed, leave that, otherwise make it position: relative
-		let position = _getComputedStyle(element).position;
+		let {position} = _getComputedStyle(element);
 		element.style.position = (position === "absolute" || position === "fixed") ? position : "relative";
 	},
 	_setDefaults = (obj, defaults) => {
@@ -100,7 +100,7 @@ let gsap, _coreInitted, _win, _doc, _docEl, _body, _root, _resizeDelay, _toArray
 	_getClosestLabel = animation => value => gsap.utils.snap(_getLabelRatioArray(animation), value),
 	_snapDirectional = snapIncrementOrArray => {
 		let snap = gsap.utils.snap(snapIncrementOrArray),
-			a = Array.isArray(snapIncrementOrArray) && snapIncrementOrArray.slice(0).sort((a, b) => a - b);
+			a = Array.isArray(snapIncrementOrArray) && snapIncrementOrArray.slice().sort((a, b) => a - b);
 		return a ? (value, direction, threshold= 1e-3) => {
 			let i;
 			if (!direction) {
@@ -278,7 +278,7 @@ let gsap, _coreInitted, _win, _doc, _docEl, _body, _root, _resizeDelay, _toArray
 				obj(0);
 			}
 		});
-		_triggers.slice(0).forEach(t => t.refresh()) // don't loop with _i because during a refresh() someone could call ScrollTrigger.update() which would iterate through _i resulting in a skip.
+		_triggers.slice().forEach(t => t.refresh()) // don't loop with _i because during a refresh() someone could call ScrollTrigger.update() which would iterate through _i resulting in a skip.
 		_isReverted = false;
 		_triggers.forEach((t) => { // nested pins (pinnedContainer) with pinSpacing may expand the container, so we must accommodate that here.
 			if (t._subPinOffset && t.pin) {
@@ -1043,7 +1043,7 @@ export class ScrollTrigger {
 		self.endAnimation = () => {
 			_endAnimation(self.callbackAnimation);
 			if (animation) {
-				scrubTween ? scrubTween.progress(1) : (!animation.paused() ? _endAnimation(animation, animation.reversed()) : isToggle || _endAnimation(animation, self.direction < 0, 1));
+				scrubTween ? scrubTween.progress(1) : (animation.paused() ? isToggle || _endAnimation(animation, self.direction < 0, 1) : _endAnimation(animation, animation.reversed()));
 			}
 		};
 
@@ -1456,7 +1456,7 @@ export class ScrollTrigger {
 	}
 
 	static killAll(allowListeners) {
-		_triggers.slice(0).forEach(t => t.vars.id !== "ScrollSmoother" && t.kill());
+		_triggers.slice().forEach(t => t.vars.id !== "ScrollSmoother" && t.kill());
 		if (allowListeners !== true) {
 			let listeners = _listeners.killAll || [];
 			_listeners = {};
@@ -1549,7 +1549,9 @@ let _clampScrollAndGetDurationMultiplier = (scrollFunc, current, end, max) => {
 			cache = node._gsap || gsap.core.getCache(node),
 			time = _getTime(), cs;
 		if (!cache._isScrollT || time - cache._isScrollT > 2000) { // cache for 2 seconds to improve performance.
-			while (node && node !== _body && ((node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth) || !(_overflow[(cs = _getComputedStyle(node)).overflowY] || _overflow[cs.overflowX]))) node = node.parentNode;
+			while (node && node !== _body && ((node.scrollHeight <= node.clientHeight && node.scrollWidth <= node.clientWidth) || !(_overflow[(cs = _getComputedStyle(node)).overflowY] || _overflow[cs.overflowX]))) {
+       node = node.parentNode;
+   }
 			cache._isScroll = node && node !== target && !_isViewport(node) && (_overflow[(cs = _getComputedStyle(node)).overflowY] || _overflow[cs.overflowX]);
 			cache._isScrollT = time;
 		}

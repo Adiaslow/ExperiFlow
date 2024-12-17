@@ -108,7 +108,7 @@ export default class GraphNode {
       }
 
       // Get flowchart instance
-      const flowChart = window.flowChart; // Assuming flowChart is stored globally
+      const {flowChart} = window; // Assuming flowChart is stored globally
 
       if (!this.isOpen) {
         flowChart.selectNode(this);
@@ -147,7 +147,9 @@ export default class GraphNode {
     });
 
     document.addEventListener("mousemove", (e) => {
-      if (!isDragging) return;
+      if (!isDragging) {
+        return;
+      }
 
       const canvas = document.getElementById("canvas");
       const scale = parseFloat(

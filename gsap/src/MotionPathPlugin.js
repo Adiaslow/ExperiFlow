@@ -219,10 +219,10 @@ export const MotionPathPlugin = {
 			pt = data._pt;
 		if (data.tween._time || !_reverting()) {
 			if (ratio > 1) {
-				ratio = 1;
-			} else if (ratio < 0) {
-				ratio = 0;
-			}
+     ratio = 1;
+   } else {
+     ratio = Math.max(ratio, 0)
+   }
 			while (i--) {
 				getPositionOnPath(rawPaths[i], ratio, !i && data.rotate, rawPaths[i]);
 			}
